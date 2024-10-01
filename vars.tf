@@ -1,2 +1,2 @@
-project_id = "your-prod-project-id"
+project_id = "properties-app-418208"
 region     = "us-east1"
