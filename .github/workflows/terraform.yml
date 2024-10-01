@@ -91,7 +91,8 @@ jobs:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
     - name: Terraform Init for GKE
-      run: terraform init -backend-config="path=terraform-backend/gke.tfstate"
+      # run: terraform init -backend-config="path=terraform-backend/gke.tfstate"
+      run: terraform init
 
     - name: Terraform Plan for GKE
       run: terraform plan -var-file="dev.tfvars" -input=false
@@ -112,3 +113,4 @@ jobs:
         echo "Service Account: $(terraform output -raw service_account)"
         echo "Subnet Names: $(terraform output -json subnet_names)"
         echo "Zones: $(terraform output -json zones)"
+
