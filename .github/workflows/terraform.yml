@@ -94,10 +94,10 @@ jobs:
       run: terraform init -backend-config="path=terraform-backend/gke.tfstate"
 
     - name: Terraform Plan for GKE
-      run: terraform plan -var="project_id=properties-app-418208" -var="region=us-central1" -input=false
+      run: terraform plan -var-file="dev.tfvars" -input=false
 
     - name: Terraform Apply for GKE
-      run: terraform apply -auto-approve -var="project_id=properties-app-418208" -var="region=us-central1" -input=false
+      run: terraform apply -auto-approve -var-file="dev.tfvars" -input=false
 
     - name: Display Terraform Outputs for GKE
       run: |
@@ -112,5 +112,3 @@ jobs:
         echo "Service Account: $(terraform output -raw service_account)"
         echo "Subnet Names: $(terraform output -json subnet_names)"
         echo "Zones: $(terraform output -json zones)"
-
-      
