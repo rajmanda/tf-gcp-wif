@@ -1,5 +1,5 @@
 # vars.tf
-variable "project_id" {
+variable "project" {
   description = "The GCP project ID"
   type        = string
 }
