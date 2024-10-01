@@ -2,9 +2,13 @@ name: 'Terraform'
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - "main"              # Match the main branch
+      - "feature/**"        # Match any branch that starts with 'feature'
   pull_request:
-    branches: [ "main" ]  # Ensure you specify branches for PRs
+    branches:
+      - "main"              # Match pull requests targeting the main branch
+      - "feature/**"        # Match any pull request targeting branches that start with 'feature'
 
 permissions:
   contents: read
@@ -30,6 +34,7 @@ jobs:
         uses: ./.github/actions/actions-oidc-debugger
         with:
           audience: '${{ github.server_url }}/${{ github.repository_owner }}'
+
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
@@ -39,7 +44,6 @@ jobs:
         shell: bash
 
     steps:
-    # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v3
 
@@ -57,17 +61,56 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
-    # # Generates an execution plan for Terraform
-    # - name: Terraform Plan
-    #   run: terraform plan -input=false
-
-    # - name: Terraform Apply
-    #   run: terraform apply -auto-approve -input=false
-
-    # Generates a destruction plan for Terraform
     - name: Terraform Plan Destroy
       run: terraform plan -destroy -input=false
 
     - name: Terraform Destroy
       run: terraform destroy -auto-approve -input=false
+
+  gke-deploy:
+    name: 'GKE Deploy'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - id: auth
+      uses: google-github-actions/auth@v2.0.0  
+      with:
+        workload_identity_provider: 'projects/175415323680/locations/global/workloadIdentityPools/githubpool/providers/github'
+        service_account: github-wif-sa@properties-app-418208.iam.gserviceaccount.com
+
+    - name: Setup Terraform for GKE
+      uses: hashicorp/setup-terraform@v1
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    - name: Terraform Init for GKE
+      run: terraform init -backend-config="path=terraform-backend/gke.tfstate"
+
+    - name: Terraform Plan for GKE
+      run: terraform plan -var="project_id=properties-app-418208" -var="region=us-central1" -input=false
+
+    - name: Terraform Apply for GKE
+      run: terraform apply -auto-approve -var="project_id=properties-app-418208" -var="region=us-central1" -input=false
+
+    - name: Display Terraform Outputs for GKE
+      run: |
+        echo "CA Certificate: $(terraform output -raw ca_certificate)"
+        echo "Cluster Name: $(terraform output -raw cluster_name)"
+        echo "Kubernetes Endpoint: $(terraform output -raw kubernetes_endpoint)"
+        echo "Location: $(terraform output -raw location)"
+        echo "Master Kubernetes Version: $(terraform output -raw master_kubernetes_version)"
+        echo "Network Name: $(terraform output -raw network_name)"
+        echo "Project ID: $(terraform output -raw project_id)"
+        echo "Region: $(terraform output -raw region)"
+        echo "Service Account: $(terraform output -raw service_account)"
+        echo "Subnet Names: $(terraform output -json subnet_names)"
+        echo "Zones: $(terraform output -json zones)"
+
       

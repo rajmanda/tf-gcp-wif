@@ -1,5 +1,14 @@
+terraform {
+  required_providers {
+    google = {
+      source = "hashicorp/google"
+      version = "6.5.0"
+    }
+  }
+}
+
 provider "google" {
-  project = "properties-app-418208"
-  region  = "us-east1" # Specify the desired region
+  project_id = var.project_id
+  region     = var.region
 }
 
