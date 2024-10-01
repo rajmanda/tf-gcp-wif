@@ -39,45 +39,6 @@ jobs:
         with:
           audience: '${{ github.server_url }}/${{ github.repository_owner }}'
 
-  terraform:
-    name: 'Terraform'
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-
-    - id: auth
-      uses: google-github-actions/auth@v2.0.0  
-      with:
-        workload_identity_provider: 'projects/175415323680/locations/global/workloadIdentityPools/githubpool/providers/github'
-        service_account: github-wif-sa@properties-app-418208.iam.gserviceaccount.com
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
-    - name: Terraform Init
-      run: terraform init -var-file="dev.tfvars" -input=false
-
-    # # Generates an execution plan for Terraform
-    - name: Terraform Plan
-      run: terraform plan -var-file="dev.tfvars" -input=false
-
-    - name: Terraform Apply
-      run: terraform apply -var-file="dev.tfvars" -input=false -auto-approve 
-
-    # - name: Terraform Plan Destroy
-    #   run: terraform plan -var-file="dev.tfvars" -input=false -destroy -input=false
-
-    # - name: Terraform Destroy
-    #   run: terraform destroy -auto-approve -input=false
-
   gke-deploy:
     name: 'GKE Deploy'
     runs-on: ubuntu-latest
@@ -125,3 +86,8 @@ jobs:
         echo "Subnet Names: $(terraform output -json subnet_names)"
         echo "Zones: $(terraform output -json zones)"
 
+    # - name: Terraform Plan Destroy
+    #   run: terraform plan -var-file="dev.tfvars" -input=false -destroy -input=false
+
+    # - name: Terraform Destroy
+    #   run: terraform destroy -auto-approve -input=false
