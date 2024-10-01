@@ -16,7 +16,7 @@ module "kubernetes-engine_example_autopilot_private_firewalls" {
   source  = "terraform-google-modules/kubernetes-engine/google//examples/autopilot_private_firewalls"
   version = "33.0.4"
 
-  project = var.project
+  project_id = var.project
   region  = var.region
 }
 
