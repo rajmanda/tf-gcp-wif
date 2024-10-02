@@ -32,7 +32,6 @@ jobs:
   pick-your-choice:
     runs-on: ububtu-latest
     steps:
-      - name: Action on GCP
       - shell: pwsh
         run: |
           echo 'apps from input ${{ inputs.apps }}'
