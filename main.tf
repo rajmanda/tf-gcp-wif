@@ -47,7 +47,16 @@ module "gke" {
 }
 
 resource "google_container_cluster" "primary" {
-  # other existing configurations
-  deletion_protection = false  # Set this to false to allow deletion
+  name               = "kubernetes-cluster-01"  # Define the cluster name here
+  location           = var.region               # Specify the region or zone
+  network            = google_compute_network.vpc_network.id
+  subnetwork         = google_compute_subnetwork.gke_subnetwork.id
+  initial_node_count = 3
+
+  # Other existing configurations...
+
+  # Ensure deletion protection is set to false
+  deletion_protection = false
 }
+
 
