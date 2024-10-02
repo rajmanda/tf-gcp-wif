@@ -7,10 +7,7 @@ on:
         description: 'Actions to perform for the GKE Cluster'
         type: string
         default: '["create-GKE-Cluster", "destroy-GKE-Cluster"]'
-        required: true
-env:
-  apps: {{ github.event.name == 'push' &&  '["create-GKE-Cluster", "destroy-GKE-Cluster"]' || inputs.apps }}
-  
+        required: true  
   push:
     branches:
       - "main"              # Match the main branch
@@ -20,6 +17,9 @@ env:
       - "main"              # Match pull requests targeting the main branch
       - "feature/**"        # Match any pull request targeting branches that start with 'feature'
 
+env:
+  apps: ${{ github.event_name == 'push' && '["create-GKE-Cluster", "destroy-GKE-Cluster"]' || inputs.apps}} # https://docs.github.com/en/actions/learn-github-actions/expressions#example
+  
 permissions:
   contents: read
   id-token: write
@@ -59,8 +59,9 @@ jobs:
 
     steps:
       - shell: pwsh
-        run: 
-          echo 'Action from input ${{ inputs.apps }}'
+        run: |
+          echo 'apps from input ${{ inputs.apps }}'
+          echo 'apps from env ${{ env.apps }}'
           
       - name: Checkout repository
         uses: actions/checkout@v3
