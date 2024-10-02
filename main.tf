@@ -1,8 +1,3 @@
-provider "google" {
-  project = var.project
-  region  = var.region
-}
-
 resource "google_storage_bucket" "my-tf-gcp-wif-bucket-01" {
   name                        = "tf-gcp-wif-001"
   location                    = "us-east1"
