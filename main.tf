@@ -40,6 +40,9 @@ module "gke" {
   # Optionally, you can pass zones if you have zonal clusters
   zones              = var.zones
 
+  # Disable deletion protection
+  deletion_protection = false  
+  
   depends_on = [google_compute_subnetwork.gke_subnetwork]  # Ensure the subnetwork is created before GKE
 }
 
