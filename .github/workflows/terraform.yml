@@ -29,6 +29,14 @@ concurrency:
   cancel-in-progress: true  
 
 jobs:
+  pick-your-choice:
+    runs-on: ububtu-latest
+    steps:
+      - name: Action on GCP
+      - shell: pwsh
+        run: |
+          echo 'apps from input ${{ inputs.apps }}'
+          echo 'apps from env ${{ env.apps }}'
 
   # oidc_debug_test:
   #   permissions:
@@ -57,12 +65,7 @@ jobs:
       run:
         shell: bash
 
-    steps:
-      - shell: pwsh
-        run: |
-          echo 'apps from input ${{ inputs.apps }}'
-          echo 'apps from env ${{ env.apps }}'
-          
+    steps:        
       - name: Checkout repository
         uses: actions/checkout@v3
 
