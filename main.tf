@@ -30,7 +30,7 @@ module "gke" {
   name               = var.name
   project_id         = var.project_id
   network            = google_compute_network.vpc_network.name  # Reference the created VPC network name
-  subnetwork         = google_compute_subnetwork.gke_subnetwork.id  # Reference the created subnetwork
+  subnetwork         = google_compute_subnetwork.gke_subnetwork.name  # Reference the created subnetwork name
   ip_range_pods      = var.ip_range_pods
   ip_range_services  = var.ip_range_services
 
@@ -42,3 +42,4 @@ module "gke" {
 
   depends_on = [google_compute_subnetwork.gke_subnetwork]  # Ensure the subnetwork is created before GKE
 }
+
