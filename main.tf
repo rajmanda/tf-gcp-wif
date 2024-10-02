@@ -42,7 +42,12 @@ module "gke" {
 
   # Disable deletion protection
   deletion_protection = false  
-  
+
   depends_on = [google_compute_subnetwork.gke_subnetwork]  # Ensure the subnetwork is created before GKE
+}
+
+resource "google_container_cluster" "primary" {
+  # other existing configurations
+  deletion_protection = false  # Set this to false to allow deletion
 }
 
