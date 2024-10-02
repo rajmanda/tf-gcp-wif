@@ -6,7 +6,7 @@ on:
       actions:
         description: 'Actions to perform for the GKE Cluster'
         type: string
-        default: '["create GKE Cluster", "destroy GKE Cluster"]'
+        default: '["create-GKE-Cluster", "destroy-GKE-Cluster"]'
         required: true
         
   push:
@@ -56,6 +56,10 @@ jobs:
         shell: bash
 
     steps:
+      - shell: pwsh
+        run: 
+          echo 'Action from input ${{ input.actions }}'
+          
       - name: Checkout repository
         uses: actions/checkout@v3
 
