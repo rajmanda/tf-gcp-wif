@@ -12,7 +12,7 @@ service_account            = "project-service-account@properties-app-418208.iam.
 node_pools = [
   {
     name                        = "default-node-pool"
-    machine_type                = "e2-medium"
+    machine_type                = "e2-micro"
     node_locations              = "us-central1-b,us-central1-c"
     min_count                   = 1
     max_count                   = 100
