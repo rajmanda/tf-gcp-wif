@@ -105,5 +105,5 @@ jobs:
       - name: Terraform Destroy
         run: |
           echo "Destroying Terraform resources..."
-          terraform destroy -auto-approve -input=false
+          terraform destroy  -var-file="dev.tfvars" -auto-approve -input=false
           echo "Terraform resources destroyed successfully."
