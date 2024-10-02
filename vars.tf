@@ -28,12 +28,6 @@ variable "ip_range_services" {
   type        = string
 }
 
-
-variable "project_id" {
-  description = "The ID of the GCP project."
-  type        = string
-}
-
 variable "region" {
   description = "The region to deploy the GKE cluster."
   type        = string
@@ -42,26 +36,6 @@ variable "region" {
 variable "zones" {
   description = "The availability zones for the GKE cluster."
   type        = list(string)
-}
-
-variable "network" {
-  description = "The VPC network to use for the GKE cluster."
-  type        = string
-}
-
-variable "subnetwork" {
-  description = "The subnetwork to use for the GKE cluster."
-  type        = string
-}
-
-variable "ip_range_pods" {
-  description = "The IP range for Pods."
-  type        = string
-}
-
-variable "ip_range_services" {
-  description = "The IP range for Services."
-  type        = string
 }
 
 variable "service_account" {
@@ -95,4 +69,3 @@ variable "node_pools" {
     max_shared_clients_per_gpu  = number
   }))
 }
-
