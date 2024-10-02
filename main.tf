@@ -1,8 +1,18 @@
+provider "google" {
+  project = var.project_id
+  region  = var.region
+}
+
+resource "google_compute_network" "vpc_network" {
+  name                    = "vpc-01"
+  auto_create_subnetworks = false  # Set to false if you are creating custom subnetworks
+}
+
 resource "google_compute_subnetwork" "gke_subnetwork" {
   name          = "us-central1-01"
   ip_cidr_range = "10.0.0.0/16"  # Adjust this range as necessary
-  region        = "us-central1"
-  network       = var.network  # Ensure that var.network points to your VPC network
+  region        = var.region
+  network       = google_compute_network.vpc_network.id  # Reference the created VPC network
 
   secondary_ip_range {
     range_name    = "us-central1-01-gke-01-pods"
@@ -13,6 +23,8 @@ resource "google_compute_subnetwork" "gke_subnetwork" {
     range_name    = "us-central1-01-gke-01-services"
     ip_cidr_range = "10.2.0.0/20"  # Adjust this range for services
   }
+
+  depends_on = [google_compute_network.vpc_network]  # Ensure the network is created before the subnetwork
 }
 
 module "gke" {
@@ -22,7 +34,7 @@ module "gke" {
   # Use the variables from vars.tf
   name               = var.name
   project_id         = var.project_id
-  network            = var.network
+  network            = google_compute_network.vpc_network.id  # Reference the created VPC network
   subnetwork         = google_compute_subnetwork.gke_subnetwork.id  # Reference the created subnetwork
   ip_range_pods      = var.ip_range_pods
   ip_range_services  = var.ip_range_services
@@ -33,6 +45,5 @@ module "gke" {
   # Optionally, you can pass zones if you have zonal clusters
   zones              = var.zones
 
-  # Add the depends_on attribute
-  depends_on = [google_compute_subnetwork.gke_subnetwork]
+  depends_on = [google_compute_subnetwork.gke_subnetwork]  # Ensure the subnetwork is created before GKE
 }
