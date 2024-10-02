@@ -1,11 +1,12 @@
-project_id                 = "<properties-app-418208>"
+name                       = "kuberetes-cluster-01"
+project_id                 = "properties-app-418208"
 region                     = "us-central1"
 zones                      = ["us-central1-a", "us-central1-b", "us-central1-f"]
 network                    = "vpc-01"
 subnetwork                 = "us-central1-01"
 ip_range_pods              = "us-central1-01-gke-01-pods"
 ip_range_services          = "us-central1-01-gke-01-services"
-service_account            = "project-service-account@<properties-app-418208>.iam.gserviceaccount.com"
+service_account            = "project-service-account@properties-app-418208.iam.gserviceaccount.com"
 
 node_pools = [
   {
