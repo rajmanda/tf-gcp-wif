@@ -29,7 +29,7 @@ module "gke" {
   # Use the variables from vars.tf
   name               = var.name
   project_id         = var.project_id
-  network            = google_compute_network.vpc_network.id  # Reference the created VPC network
+  network            = google_compute_network.vpc_network.name  # Reference the created VPC network name
   subnetwork         = google_compute_subnetwork.gke_subnetwork.id  # Reference the created subnetwork
   ip_range_pods      = var.ip_range_pods
   ip_range_services  = var.ip_range_services
