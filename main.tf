@@ -34,6 +34,10 @@ module "gke" {
   ip_range_pods      = var.ip_range_pods
   ip_range_services  = var.ip_range_services
 
+  
+  # Pass node_pools from dev.tfvars
+  node_pools         = var.node_pools
+  
   # Pass the region explicitly
   region             = var.region
 
