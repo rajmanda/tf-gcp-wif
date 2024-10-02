@@ -59,4 +59,15 @@ resource "google_container_cluster" "primary" {
   deletion_protection = false
 }
 
+resource "google_container_node_pool" "primary_nodes" {
+  cluster    = google_container_cluster.primary.name
+  location   = var.region
+  node_count = 3
+
+  node_config {
+    machine_type = "e2-micro"  # Adjust machine type
+    disk_size_gb = 100          # Reduce the disk size to fit within your quota
+    disk_type    = "pd-standard"  # Change to standard persistent disk
+  }
+}
 
