@@ -3,12 +3,14 @@ name: 'Terraform'
 on:
   workflow_dispatch:
     inputs:
-      actions:
+      apps:
         description: 'Actions to perform for the GKE Cluster'
         type: string
         default: '["create-GKE-Cluster", "destroy-GKE-Cluster"]'
         required: true
-        
+env:
+  apps: {{ github.event.name == 'push' &&  '["create-GKE-Cluster", "destroy-GKE-Cluster"]' || inputs.apps }}
+  
   push:
     branches:
       - "main"              # Match the main branch
@@ -58,7 +60,7 @@ jobs:
     steps:
       - shell: pwsh
         run: 
-          echo 'Action from input ${{ inputs.actions }}'
+          echo 'Action from input ${{ inputs.apps }}'
           
       - name: Checkout repository
         uses: actions/checkout@v3
