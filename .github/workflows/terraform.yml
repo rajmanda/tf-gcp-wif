@@ -133,14 +133,14 @@ jobs:
            echo "Terraform outputs displayed successfully."
 
 
-      - name: Terraform Plan Destroy
-        run: |
-          echo "Generating Terraform destroy plan..."
-          terraform plan -var-file="dev.tfvars" -input=false -destroy -input=false
-          echo "Terraform destroy plan generated."
+      # - name: Terraform Plan Destroy
+      #   run: |
+      #     echo "Generating Terraform destroy plan..."
+      #     terraform plan -var-file="dev.tfvars" -input=false -destroy -input=false
+      #     echo "Terraform destroy plan generated."
 
-      - name: Terraform Destroy
-        run: |
-          echo "Destroying Terraform resources..."
-          terraform destroy  -var-file="dev.tfvars" -auto-approve -input=false
-          echo "Terraform resources destroyed successfully."
+      # - name: Terraform Destroy
+      #   run: |
+      #     echo "Destroying Terraform resources..."
+      #     terraform destroy  -var-file="dev.tfvars" -auto-approve -input=false
+      #     echo "Terraform resources destroyed successfully."
