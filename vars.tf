@@ -3,6 +3,11 @@ variable "name" {
   type        = string
 }
 
+variable "project" {
+  description = "The project ID to host the cluster in (required)"
+  type        = string
+}
+
 variable "project_id" {
   description = "The project ID to host the cluster in (required)"
   type        = string

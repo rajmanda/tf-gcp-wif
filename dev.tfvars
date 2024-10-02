@@ -1,4 +1,5 @@
 name                       = "kuberetes-cluster-01"
+project                    = "properties-app-418208"
 project_id                 = "properties-app-418208"
 region                     = "us-central1"
 zones                      = ["us-central1-a", "us-central1-b", "us-central1-f"]
