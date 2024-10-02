@@ -20,24 +20,24 @@ concurrency:
 
 jobs:
 
-  oidc_debug_test:
-    permissions:
-      contents: read
-      id-token: write
-    runs-on: ubuntu-latest
-    name: A test of the oidc debugger
-    steps:
-      - name: Checkout actions-oidc-debugger
-        uses: actions/checkout@v3
-        with:
-          repository: github/actions-oidc-debugger
-          ref: main
-          token: ${{ secrets.GITHUB_TOKEN }}
-          path: ./.github/actions/actions-oidc-debugger
-      - name: Debug OIDC Claims
-        uses: ./.github/actions/actions-oidc-debugger
-        with:
-          audience: '${{ github.server_url }}/${{ github.repository_owner }}'
+  # oidc_debug_test:
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #   runs-on: ubuntu-latest
+  #   name: A test of the oidc debugger
+  #   steps:
+  #     - name: Checkout actions-oidc-debugger
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: github/actions-oidc-debugger
+  #         ref: main
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         path: ./.github/actions/actions-oidc-debugger
+  #     - name: Debug OIDC Claims
+  #       uses: ./.github/actions/actions-oidc-debugger
+  #       with:
+  #         audience: '${{ github.server_url }}/${{ github.repository_owner }}'
 
   gke-deploy:
     name: 'GKE Deploy'
@@ -68,42 +68,42 @@ jobs:
           terraform init
           echo "Terraform initialized successfully."
 
-      # - name: Terraform Plan for GKE
-      #   run: |
-      #     echo "Generating Terraform plan..."
-      #     terraform plan -var-file="dev.tfvars" -input=false
-      #     echo "Terraform plan generated."
-
-      # - name: Terraform Apply for GKE
-      #   run: |
-      #     echo "Applying Terraform changes..."
-      #     terraform apply -auto-approve -var-file="dev.tfvars" -input=false
-      #     echo "Terraform changes applied successfully."
-
-      # - name: Display Terraform Outputs for GKE
-      #   run: |
-      #     echo "Displaying Terraform outputs..."
-      #     echo "CA Certificate: $(terraform output -raw ca_certificate)"
-      #     echo "Cluster Name: $(terraform output -raw cluster_name)"
-      #     echo "Kubernetes Endpoint: $(terraform output -raw kubernetes_endpoint)"
-      #     echo "Location: $(terraform output -raw location)"
-      #     echo "Master Kubernetes Version: $(terraform output -raw master_kubernetes_version)"
-      #     echo "Network Name: $(terraform output -raw network_name)"
-      #     echo "Project ID: $(terraform output -raw project_id)"
-      #     echo "Region: $(terraform output -raw region)"
-      #     echo "Service Account: $(terraform output -raw service_account)"
-      #     echo "Subnet Names: $(terraform output -json subnet_names)"
-      #     echo "Zones: $(terraform output -json zones)"
-      #     echo "Terraform outputs displayed successfully."
-
-      - name: Terraform Plan Destroy
+      - name: Terraform Plan for GKE
         run: |
-          echo "Generating Terraform destroy plan..."
-          terraform plan -var-file="dev.tfvars" -input=false -destroy -input=false
-          echo "Terraform destroy plan generated."
+          echo "Generating Terraform plan..."
+          terraform plan -var-file="dev.tfvars" -input=false
+          echo "Terraform plan generated."
 
-      - name: Terraform Destroy
+      - name: Terraform Apply for GKE
         run: |
-          echo "Destroying Terraform resources..."
-          terraform destroy  -var-file="dev.tfvars" -auto-approve -input=false
-          echo "Terraform resources destroyed successfully."
+          echo "Applying Terraform changes..."
+          terraform apply -auto-approve -var-file="dev.tfvars" -input=false
+          echo "Terraform changes applied successfully."
+
+      - name: Display Terraform Outputs for GKE
+        run: |
+          echo "Displaying Terraform outputs..."
+          echo "CA Certificate: $(terraform output -raw ca_certificate)"
+          echo "Cluster Name: $(terraform output -raw cluster_name)"
+          echo "Kubernetes Endpoint: $(terraform output -raw kubernetes_endpoint)"
+          echo "Location: $(terraform output -raw location)"
+          echo "Master Kubernetes Version: $(terraform output -raw master_kubernetes_version)"
+          echo "Network Name: $(terraform output -raw network_name)"
+          echo "Project ID: $(terraform output -raw project_id)"
+          echo "Region: $(terraform output -raw region)"
+          echo "Service Account: $(terraform output -raw service_account)"
+          echo "Subnet Names: $(terraform output -json subnet_names)"
+          echo "Zones: $(terraform output -json zones)"
+          echo "Terraform outputs displayed successfully."
+
+      # - name: Terraform Plan Destroy
+      #   run: |
+      #     echo "Generating Terraform destroy plan..."
+      #     terraform plan -var-file="dev.tfvars" -input=false -destroy -input=false
+      #     echo "Terraform destroy plan generated."
+
+      # - name: Terraform Destroy
+      #   run: |
+      #     echo "Destroying Terraform resources..."
+      #     terraform destroy  -var-file="dev.tfvars" -auto-approve -input=false
+      #     echo "Terraform resources destroyed successfully."
