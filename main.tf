@@ -9,5 +9,11 @@ module "gke" {
   subnetwork         = var.subnetwork
   ip_range_pods      = var.ip_range_pods
   ip_range_services  = var.ip_range_services
+
+  # Pass the region explicitly
+  region             = var.region
+  
+  # Optionally, you can pass zones if you have zonal clusters
+  zones              = var.zones
 }
 
