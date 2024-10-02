@@ -1,6 +1,14 @@
 name: 'Terraform'
 
 on:
+  workflow_dispatch:
+    inputs:
+      actions:
+        description: 'Actions to perform for the GKE Cluster'
+        type: string
+        default: '["create GKE Cluster", "destroy GKE Cluster"]'
+        required: true
+        
   push:
     branches:
       - "main"              # Match the main branch
