@@ -68,17 +68,17 @@ jobs:
           terraform init
           echo "Terraform initialized successfully."
 
-      # - name: Terraform Plan for GKE
-      #   run: |
-      #     echo "Generating Terraform plan..."
-      #     terraform plan -var-file="dev.tfvars" -input=false
-      #     echo "Terraform plan generated."
+      - name: Terraform Plan for GKE
+        run: |
+          echo "Generating Terraform plan..."
+          terraform plan -var-file="dev.tfvars" -input=false
+          echo "Terraform plan generated."
 
-      # - name: Terraform Apply for GKE
-      #   run: |
-      #     echo "Applying Terraform changes..."
-      #     terraform apply -auto-approve -var-file="dev.tfvars" -input=false
-      #     echo "Terraform changes applied successfully."
+      - name: Terraform Apply for GKE
+        run: |
+          echo "Applying Terraform changes..."
+          terraform apply -auto-approve -var-file="dev.tfvars" -input=false
+          echo "Terraform changes applied successfully."
 
       - name: Display Terraform Outputs for GKE
         run: |
