@@ -58,7 +58,7 @@ jobs:
     steps:
       - shell: pwsh
         run: 
-          echo 'Action from input ${{ input.actions }}'
+          echo 'Action from input ${{ inputs.actions }}'
           
       - name: Checkout repository
         uses: actions/checkout@v3
