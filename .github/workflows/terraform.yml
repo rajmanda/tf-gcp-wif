@@ -79,68 +79,68 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Terraform Init for GKE
+      # - name: Terraform Init for GKE
+      #   run: |
+      #     echo "Initializing Terraform..."
+      #     terraform init
+      #     echo "Terraform initialized successfully."
+
+      # - name: Terraform Plan for GKE
+      #   run: |
+      #       echo "Generating Terraform plan..."
+      #       terraform plan -var-file="dev.tfvars" -input=false
+      #       echo "Terraform plan generated."
+
+      # - name: Terraform Apply for GKE
+      #   run: |
+      #       echo "Applying Terraform changes..."
+      #       terraform apply -auto-approve -var-file="dev.tfvars" -input=false
+      #       echo "Terraform changes applied successfully."
+
+      # - name: Display Terraform Outputs for GKE
+      #   run: |
+      #       echo "Displaying Terraform outputs..."
+      #       echo "CA Certificate: $(terraform output -raw ca_certificate)"
+      #       echo "Cluster ID: $(terraform output -raw cluster_id)"
+      #       echo "DNS Cache Enabled: $(terraform output -raw dns_cache_enabled)"
+      #       echo "Cluster Endpoint: $(terraform output -raw endpoint)"
+      #       echo "Fleet Membership: $(terraform output -raw fleet_membership)"
+      #       echo "Gateway API Channel: $(terraform output -raw gateway_api_channel)"
+      #       echo "Horizontal Pod Autoscaling Enabled: $(terraform output -raw horizontal_pod_autoscaling_enabled)"
+      #       echo "HTTP Load Balancing Enabled: $(terraform output -raw http_load_balancing_enabled)"
+      #       echo "Identity Namespace: $(terraform output -raw identity_namespace)"
+      #       echo "Identity Service Enabled: $(terraform output -raw identity_service_enabled)"
+      #       echo "Instance Group URLs: $(terraform output -json instance_group_urls)"
+      #       echo "Intra-node Visibility Enabled: $(terraform output -raw intranode_visibility_enabled)"
+      #       echo "Location: $(terraform output -raw location)"
+      #       echo "Logging Service: $(terraform output -raw logging_service)"
+      #       echo "Master Authorized Networks Config: $(terraform output -json master_authorized_networks_config)"
+      #       echo "Master Version: $(terraform output -raw master_version)"
+      #       echo "Mesh Certificates Config: $(terraform output -json mesh_certificates_config)"
+      #       echo "Min Master Version: $(terraform output -raw min_master_version)"
+      #       echo "Monitoring Service: $(terraform output -raw monitoring_service)"
+      #       echo "Cluster Name: $(terraform output -raw name)"
+      #       echo "Network Policy Enabled: $(terraform output -raw network_policy_enabled)"
+      #       echo "Node Pools Names: $(terraform output -json node_pools_names)"
+      #       echo "Node Pools Versions: $(terraform output -json node_pools_versions)"
+      #       echo "Region: $(terraform output -raw region)"
+      #       echo "Release Channel: $(terraform output -raw release_channel)"
+      #       echo "Service Account: $(terraform output -raw service_account)"
+      #       echo "TPU IPv4 CIDR Block: $(terraform output -raw tpu_ipv4_cidr_block)"
+      #       echo "Cluster Type: $(terraform output -raw type)"
+      #       echo "Vertical Pod Autoscaling Enabled: $(terraform output -raw vertical_pod_autoscaling_enabled)"
+      #       echo "Zones: $(terraform output -json zones)"
+      #       echo "Terraform outputs displayed successfully."
+
+
+      - name: Terraform Plan Destroy
         run: |
-          echo "Initializing Terraform..."
-          terraform init
-          echo "Terraform initialized successfully."
+          echo "Generating Terraform destroy plan..."
+          terraform plan -var-file="dev.tfvars" -input=false -destroy -input=false
+          echo "Terraform destroy plan generated."
 
-      - name: Terraform Plan for GKE
+      - name: Terraform Destroy
         run: |
-            echo "Generating Terraform plan..."
-            terraform plan -var-file="dev.tfvars" -input=false
-            echo "Terraform plan generated."
-
-      - name: Terraform Apply for GKE
-        run: |
-            echo "Applying Terraform changes..."
-            terraform apply -auto-approve -var-file="dev.tfvars" -input=false
-            echo "Terraform changes applied successfully."
-
-      - name: Display Terraform Outputs for GKE
-        run: |
-            echo "Displaying Terraform outputs..."
-            echo "CA Certificate: $(terraform output -raw ca_certificate)"
-            echo "Cluster ID: $(terraform output -raw cluster_id)"
-            echo "DNS Cache Enabled: $(terraform output -raw dns_cache_enabled)"
-            echo "Cluster Endpoint: $(terraform output -raw endpoint)"
-            echo "Fleet Membership: $(terraform output -raw fleet_membership)"
-            echo "Gateway API Channel: $(terraform output -raw gateway_api_channel)"
-            echo "Horizontal Pod Autoscaling Enabled: $(terraform output -raw horizontal_pod_autoscaling_enabled)"
-            echo "HTTP Load Balancing Enabled: $(terraform output -raw http_load_balancing_enabled)"
-            echo "Identity Namespace: $(terraform output -raw identity_namespace)"
-            echo "Identity Service Enabled: $(terraform output -raw identity_service_enabled)"
-            echo "Instance Group URLs: $(terraform output -json instance_group_urls)"
-            echo "Intra-node Visibility Enabled: $(terraform output -raw intranode_visibility_enabled)"
-            echo "Location: $(terraform output -raw location)"
-            echo "Logging Service: $(terraform output -raw logging_service)"
-            echo "Master Authorized Networks Config: $(terraform output -json master_authorized_networks_config)"
-            echo "Master Version: $(terraform output -raw master_version)"
-            echo "Mesh Certificates Config: $(terraform output -json mesh_certificates_config)"
-            echo "Min Master Version: $(terraform output -raw min_master_version)"
-            echo "Monitoring Service: $(terraform output -raw monitoring_service)"
-            echo "Cluster Name: $(terraform output -raw name)"
-            echo "Network Policy Enabled: $(terraform output -raw network_policy_enabled)"
-            echo "Node Pools Names: $(terraform output -json node_pools_names)"
-            echo "Node Pools Versions: $(terraform output -json node_pools_versions)"
-            echo "Region: $(terraform output -raw region)"
-            echo "Release Channel: $(terraform output -raw release_channel)"
-            echo "Service Account: $(terraform output -raw service_account)"
-            echo "TPU IPv4 CIDR Block: $(terraform output -raw tpu_ipv4_cidr_block)"
-            echo "Cluster Type: $(terraform output -raw type)"
-            echo "Vertical Pod Autoscaling Enabled: $(terraform output -raw vertical_pod_autoscaling_enabled)"
-            echo "Zones: $(terraform output -json zones)"
-            echo "Terraform outputs displayed successfully."
-
-
-#      - name: Terraform Plan Destroy
-#        run: |
-#          echo "Generating Terraform destroy plan..."
-#          terraform plan -var-file="dev.tfvars" -input=false -destroy -input=false
-#          echo "Terraform destroy plan generated."
-#
-#      - name: Terraform Destroy
-#        run: |
-#          echo "Destroying Terraform resources..."
-#          terraform destroy  -var-file="dev.tfvars" -auto-approve -input=false
-#          echo "Terraform resources destroyed successfully."
+         echo "Destroying Terraform resources..."
+         terraform destroy  -var-file="dev.tfvars" -auto-approve -input=false
+         echo "Terraform resources destroyed successfully."
