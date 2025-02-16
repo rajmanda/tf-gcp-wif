@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: angular-app-container
-          image: dockerrajmanda/kalyanam:123
+          image: dockerrajmanda/kalyanam:125
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -52,6 +52,8 @@ spec:
     - rajmanda-dev.com
     - www.rajmanda-dev.com
     - www.rajmanda-dev.com
+    - shravanikalyanam.com
+    - www.shravanikalyanam.com
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -66,9 +68,35 @@ spec:
         - rajmanda-dev.com
         - www.rajmanda-dev.com
         - eureka.rajmanda-dev.com  # Add your Eureka subdomain here
+        - shravanikalyanam.com
+        - www.shravanikalyanam.com
       secretName: rajmanda-dev-tls  # Will be automatically managed by GCP
   ingressClassName: nginx  # Set your ingress class here
   rules:
+      - host: shravanikalyanam.com
+      http:
+        paths:
+          - path: /rsvp/allrsvps
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090
+          - path: /rsvp/saversvp
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kalyanam
+                port:
+                  number: 80
     - host: rajmanda-dev.com
       http:
         paths:
