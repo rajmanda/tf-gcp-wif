@@ -73,7 +73,7 @@ spec:
       secretName: rajmanda-dev-tls  # Will be automatically managed by GCP
   ingressClassName: nginx  # Set your ingress class here
   rules:
-      - host: shravanikalyanam.com
+    - host: shravanikalyanam.com
       http:
         paths:
           - path: /rsvp/allrsvps
