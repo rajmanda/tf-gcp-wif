@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: angular-app-container
-          image: dockerrajmanda/kalyanam:125
+          image: dockerrajmanda/kalyanam:126
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -51,7 +51,6 @@ spec:
   domains:
     - rajmanda-dev.com
     - www.rajmanda-dev.com
-    - www.rajmanda-dev.com
     - shravanikalyanam.com
     - www.shravanikalyanam.com
 ---
@@ -73,7 +72,7 @@ spec:
       secretName: rajmanda-dev-tls  # Will be automatically managed by GCP
   ingressClassName: nginx  # Set your ingress class here
   rules:
-    - host: shravanikalyanam.com
+      - host: shravanikalyanam.com
       http:
         paths:
           - path: /rsvp/allrsvps
