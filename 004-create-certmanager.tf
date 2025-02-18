@@ -13,20 +13,22 @@ resource "helm_release" "cert_manager" {
   name       = "cert-manager"
   repository = "https://charts.jetstack.io"
   chart      = "cert-manager"
-  version    = "v1.12.0"
+  version    = "v1.17.0"
   namespace  = "cert-manager"
-
   create_namespace = true
 
   set {
-    name  = "installCRDs"
+    name  = "crds.enabled"
     value = "true"
   }
 
-  values = [
-    <<EOF
-leaderElection:
-  namespace: cert-manager-leader-election
-EOF
-  ]
+  set {
+    name  = "prometheus.enabled"
+    value = "false"
+  }
+
+  set {
+    name  = "webhook.timeoutSeconds"
+    value = "4"
+  }
 }
