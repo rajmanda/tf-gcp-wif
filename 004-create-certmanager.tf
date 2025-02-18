@@ -8,6 +8,7 @@
 #   }
 # }
 
+
 resource "helm_release" "cert_manager" {
   name       = "cert-manager"
   repository = "https://charts.jetstack.io"
@@ -22,8 +23,10 @@ resource "helm_release" "cert_manager" {
     value = "true"
   }
 
-  set {
-    name  = "extraArgs[0]"
-    value = "--leader-election-namespace=cert-manager-leader-election"
-  }
+  values = [
+    <<EOF
+leaderElection:
+  namespace: cert-manager-leader-election
+EOF
+  ]
 }
