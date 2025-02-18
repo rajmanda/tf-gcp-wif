@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: angular-app-container
-          image: dockerrajmanda/kalyanam:127
+          image: dockerrajmanda/kalyanam:128
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -72,7 +72,7 @@ spec:
       secretName: rajmanda-dev-tls  # Will be automatically managed by GCP
   ingressClassName: nginx  # Set your ingress class here
   rules:
-      - host: shravanikalyanam.com
+    - host: shravanikalyanam.com
       http:
         paths:
           - path: /rsvp/allrsvps
@@ -83,6 +83,20 @@ spec:
                 port:
                   number: 8090
           - path: /rsvp/saversvp
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090
+          - path: /gala-event/all-gala-events
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090
+          - path: /gala-event/save-gala-event
             pathType: Prefix
             backend:
               service:
@@ -107,6 +121,20 @@ spec:
                 port:
                   number: 8090
           - path: /rsvp/saversvp
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090
+          - path: /gala-event/all-gala-events
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090
+          - path: gala-event/save-gala-event
             pathType: Prefix
             backend:
               service:
