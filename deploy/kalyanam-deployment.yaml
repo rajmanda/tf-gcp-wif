@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: angular-app-container
-          image: dockerrajmanda/kalyanam:131
+          image: dockerrajmanda/kalyanam:132
           imagePullPolicy: Always
           ports:
             - containerPort: 80
