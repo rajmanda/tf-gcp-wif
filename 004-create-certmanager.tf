@@ -1,12 +1,12 @@
 
 # cert-manager service account does not have the necessary permissions to create a leader election record in the kube-system namespace - hence creating this namespace.
-resource "kubernetes_namespace" "cert-manager-leader-election" {
-  #depends_on = [module.kubernetes-engine_example_simple_autopilot_public]
-  #depends_on = [ data.google_container_cluster.existing ]
-  metadata {
-    name = "cert-manager-leader-election"
-  }
-}
+# resource "kubernetes_namespace" "cert-manager-leader-election" {
+#   #depends_on = [module.kubernetes-engine_example_simple_autopilot_public]
+#   #depends_on = [ data.google_container_cluster.existing ]
+#   metadata {
+#     name = "cert-manager-leader-election"
+#   }
+# }
 
 resource "helm_release" "cert_manager" {
   name       = "cert-manager"
