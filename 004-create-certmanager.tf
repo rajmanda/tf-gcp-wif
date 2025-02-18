@@ -12,7 +12,7 @@ resource "helm_release" "cert_manager" {
   name       = "cert-manager"
   repository = "https://charts.jetstack.io"
   chart      = "cert-manager"
-  version    = "v1.12.0"  # Specify the desired chart version
+  version    = "v1.12.0"
   namespace  = "cert-manager"
 
   create_namespace = true
@@ -21,6 +21,7 @@ resource "helm_release" "cert_manager" {
     name  = "installCRDs"
     value = "true"
   }
+
   set {
     name  = "extraArgs[0]"
     value = "--leader-election-namespace=cert-manager-leader-election"
