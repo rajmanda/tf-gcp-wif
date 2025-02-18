@@ -2,10 +2,6 @@
 
 #By using this Terraform configuration, you should be able to resolve the RBAC issue and allow the cert-manager-cainjector service account to create Lease resources for leader election
 
-provider "kubernetes" {
-  config_path = "~/.kube/config"  # Adjust this path if your kubeconfig is located elsewhere
-}
-
 resource "kubernetes_role" "cert_manager_cainjector_leader_election" {
   metadata {
     name      = "cert-manager-cainjector-leader-election"
