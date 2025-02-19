@@ -135,7 +135,7 @@ spec:
                 name: rsvpbackend
                 port:
                   number: 8090
-          - path: gala-event/save-gala-event
+          - path: /gala-event/save-gala-event
             pathType: Prefix
             backend:
               service:
