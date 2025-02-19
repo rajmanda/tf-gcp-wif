@@ -16,23 +16,19 @@ resource "helm_release" "cert_manager" {
     value = "cert-manager"
   }
 }
-
-resource "kubernetes_manifest" "letsencrypt_staging_issuer" {
-  depends_on = [helm_release.cert_manager]
-
+resource "kubernetes_manifest" "letsencrypt_prod_cluster_issuer" {
   manifest = {
     "apiVersion" = "cert-manager.io/v1"
-    "kind"       = "Issuer"
+    "kind"       = "ClusterIssuer"
     "metadata" = {
-      "name"      = "letsencrypt-staging"
-      "namespace" = "cert-manager" # make sure the namespace matches where cert-manager is installed
+      "name" = "letsencrypt-prod"
     }
     "spec" = {
       "acme" = {
-        "server" = "https://acme-staging-v02.api.letsencrypt.org/directory"
+        "server" = "https://acme-v02.api.letsencrypt.org/directory"
         "email"  = "raj.manda@gmail.com" 
         "privateKeySecretRef" = {
-          "name" = "letsencrypt-staging"
+          "name" = "letsencrypt-prod"
         }
         "solvers" = [
           {
@@ -47,3 +43,4 @@ resource "kubernetes_manifest" "letsencrypt_staging_issuer" {
     }
   }
 }
+
