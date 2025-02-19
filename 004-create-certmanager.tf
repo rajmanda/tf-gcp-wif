@@ -43,7 +43,7 @@ resource "kubernetes_manifest" "letsencrypt_prod_cluster_issuer" {
     }
   }
 }
-resource "kubernetes_manifest" "rajmanda-dev-letsencrypt-prod-tls_certificate" {
+resource "kubernetes_manifest" "rajmanda-dev-letsencrypt-prod-tls_kalyanamns_certificate" {
   manifest = {
     apiVersion = "cert-manager.io/v1"
     kind       = "Certificate"
@@ -61,7 +61,7 @@ resource "kubernetes_manifest" "rajmanda-dev-letsencrypt-prod-tls_certificate" {
     }
   }
 }
-resource "kubernetes_manifest" "rajmanda-dev-letsencrypt-prod-tls_certificate" {
+resource "kubernetes_manifest" "rajmanda-dev-letsencrypt-prod-tls_eurekans_certificate" {
   manifest = {
     apiVersion = "cert-manager.io/v1"
     kind       = "Certificate"
