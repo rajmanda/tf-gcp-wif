@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set the Helm repositories
-REPOS=("bitnami=https://charts.bitnami.com/bitnami" "nginx-stable=https://helm.nginx.com/stable")
+REPOS=("bitnami=https://charts.bitnami.com/bitnami" "nginx-stable=https://helm.nginx.com/stable", "cert-manager=https://charts.jetstack.io")
 
 # Function to add Helm repositories
 add_repos() {
