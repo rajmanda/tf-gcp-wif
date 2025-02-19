@@ -47,6 +47,11 @@ resource "kubernetes_manifest" "rajmanda-dev-letsencrypt-prod-tls_kalyanamns_cer
       }
     }
   }
+  lifecycle {
+    ignore_changes = [
+      manifest,
+    ]
+  }
 }
 
 resource "kubernetes_manifest" "rajmanda-dev-letsencrypt-prod-tls_eurekans_certificate" {
@@ -67,5 +72,10 @@ resource "kubernetes_manifest" "rajmanda-dev-letsencrypt-prod-tls_eurekans_certi
         kind = "ClusterIssuer"
       }
     }
+  }
+  lifecycle {
+    ignore_changes = [
+      manifest,
+    ]
   }
 }
