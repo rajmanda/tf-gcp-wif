@@ -8,10 +8,9 @@ resource "helm_release" "cert_manager" {
   create_namespace = true
 
   set {
-    name  = "crds.enabled"
+    name  = "installCRDs"
     value = "true"
   }
-
   set {
     name  = "global.leaderElection.namespace"
     value = "cert-manager"
