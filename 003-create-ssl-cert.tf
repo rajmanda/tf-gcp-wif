@@ -3,7 +3,6 @@ provider "tls" {}
 
 # Generate a private key
 resource "tls_private_key" "example" {
-  depends_on = [ kubernetes_namespace.kalyanam ]
   algorithm = "RSA"
   rsa_bits  = 2048
 }
