@@ -17,7 +17,10 @@ resource "helm_release" "cert_manager" {
     value = "cert-manager"
   }
 }
+
 resource "kubernetes_manifest" "letsencrypt_prod_cluster_issuer" {
+  depends_on = [helm_release.cert_manager]
+
   manifest = {
     "apiVersion" = "cert-manager.io/v1"
     "kind"       = "ClusterIssuer"
@@ -27,7 +30,7 @@ resource "kubernetes_manifest" "letsencrypt_prod_cluster_issuer" {
     "spec" = {
       "acme" = {
         "server" = "https://acme-v02.api.letsencrypt.org/directory"
-        "email"  = "raj.manda@gmail.com" 
+        "email"  = "raj.manda@gmail.com"
         "privateKeySecretRef" = {
           "name" = "letsencrypt-prod"
         }
@@ -44,7 +47,10 @@ resource "kubernetes_manifest" "letsencrypt_prod_cluster_issuer" {
     }
   }
 }
+
 resource "kubernetes_manifest" "rajmanda-dev-letsencrypt-prod-tls_kalyanamns_certificate" {
+  depends_on = [kubernetes_manifest.letsencrypt_prod_cluster_issuer]
+
   manifest = {
     apiVersion = "cert-manager.io/v1"
     kind       = "Certificate"
@@ -62,7 +68,10 @@ resource "kubernetes_manifest" "rajmanda-dev-letsencrypt-prod-tls_kalyanamns_cer
     }
   }
 }
+
 resource "kubernetes_manifest" "rajmanda-dev-letsencrypt-prod-tls_eurekans_certificate" {
+  depends_on = [kubernetes_manifest.letsencrypt_prod_cluster_issuer]
+
   manifest = {
     apiVersion = "cert-manager.io/v1"
     kind       = "Certificate"
@@ -80,5 +89,3 @@ resource "kubernetes_manifest" "rajmanda-dev-letsencrypt-prod-tls_eurekans_certi
     }
   }
 }
-
-
