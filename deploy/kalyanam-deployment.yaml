@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: angular-app-container
-          image: dockerrajmanda/kalyanam:133
+          image: dockerrajmanda/kalyanam:134
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -61,6 +61,7 @@ metadata:
   namespace: kalyanam
   annotations:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"  # Force HTTPS
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   tls:
     - hosts:
@@ -69,7 +70,7 @@ spec:
         - eureka.rajmanda-dev.com  # Add your Eureka subdomain here
         - shravanikalyanam.com
         - www.shravanikalyanam.com
-      secretName: rajmanda-dev-tls  # Will be automatically managed by GCP
+      secretName: rajmanda-dev-letsencrypt-prod-tls
   ingressClassName: nginx  # Set your ingress class here
   rules:
     - host: shravanikalyanam.com
@@ -134,7 +135,7 @@ spec:
                 name: rsvpbackend
                 port:
                   number: 8090
-          - path: /gala-event/save-gala-event
+          - path: gala-event/save-gala-event
             pathType: Prefix
             backend:
               service:
@@ -156,13 +157,14 @@ metadata:
   namespace: eureka
   annotations:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"  # Force HTTPS
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   tls:
     - hosts:
         - rajmanda-dev.com
         - www.rajmanda-dev.com
-        - eureka.rajmanda-dev.com   # Add your Eureka subdomain here
-      secretName: rajmanda-dev-tls  # Will be automatically managed by GCP
+        - eureka.rajmanda-dev.com                    # Add your Eureka subdomain here
+      secretName: rajmanda-dev-letsencrypt-prod-tls  # Will be automatically managed by GCP
   ingressClassName: nginx           # Set your ingress class here
   rules:
     - host: eureka.rajmanda-dev.com  # Rule for your Eureka service
