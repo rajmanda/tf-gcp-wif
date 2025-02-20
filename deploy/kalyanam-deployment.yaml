@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: angular-app-container
-          image: dockerrajmanda/kalyanam:134
+          image: dockerrajmanda/kalyanam:140
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -135,7 +135,7 @@ spec:
                 name: rsvpbackend
                 port:
                   number: 8090
-          - path: /gala-event/save-gala-event
+          - path: gala-event/save-gala-event
             pathType: Prefix
             backend:
               service:
