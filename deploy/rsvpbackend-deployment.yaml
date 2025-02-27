@@ -25,7 +25,7 @@ spec:
 
       containers:
       - name: rsvpbackend
-        image: dockerrajmanda/rsvpbackend:70
+        image: dockerrajmanda/rsvpbackend:71
         ports:
         - containerPort: 8080
         env:                                # Add the environment variable for container
