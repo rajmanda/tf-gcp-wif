@@ -152,3 +152,45 @@ Step 4: Try Terraform Command
   5. Confirm the namespace has been deleted
      
 Running on 01/23/2024
+
+
+############ Please remember to run this branch agaain on April 19th ------ because 
+
+rajmanda@iMac ~ % kubectl get certificate -n kalyanam
+NAME                                READY   SECRET                              AGE
+rajmanda-dev-letsencrypt-prod-tls   True    rajmanda-dev-letsencrypt-prod-tls   8d
+rajmanda@iMac ~ % kubectl describe certificate rajmanda-dev-letsencrypt-prod-tls
+Error from server (NotFound): certificates.cert-manager.io "rajmanda-dev-letsencrypt-prod-tls" not found
+rajmanda@iMac ~ % kubectl describe certificate rajmanda-dev-letsencrypt-prod-tls -n kalyanam
+Name:         rajmanda-dev-letsencrypt-prod-tls
+Namespace:    kalyanam
+Labels:       <none>
+Annotations:  <none>
+API Version:  cert-manager.io/v1
+Kind:         Certificate
+Metadata:
+  Creation Timestamp:  2025-02-19T18:27:04Z
+  Generation:          1
+  Resource Version:    38176432
+  UID:                 42139642-488f-49f4-ba49-0f82c0e13f17
+Spec:
+  Dns Names:
+    rajmanda-dev.com
+    shravanikalyanam.com
+  Issuer Ref:
+    Kind:       ClusterIssuer
+    Name:       letsencrypt-prod
+  Secret Name:  rajmanda-dev-letsencrypt-prod-tls
+Status:
+  Conditions:
+    Last Transition Time:  2025-02-19T18:28:22Z
+    Message:               Certificate is up to date and has not expired
+    Observed Generation:   1
+    Reason:                Ready
+    Status:                True
+    Type:                  Ready
+  Not After:               2025-05-20T17:29:50Z
+  Not Before:              2025-02-19T17:29:51Z
+  Renewal Time:            2025-04-20T17:29:50Z
+  Revision:                1
+
