@@ -112,5 +112,6 @@ jobs:
       - name: Deploy to GKE
         run: |
           echo "Deploying to GKE..."
-          kubectl apply -f deploy/kalyanam-deployment.yaml  # Adjust the path as needed
-          kubectl apply -f deploy/rsvpbackend-deployment.yaml  # Adjust the path as needed
+          kubectl apply -f deploy/kalyanam-deployment.yaml  
+          kubectl apply -f deploy/rsvpbackend-deployment.yaml  
+          kubectl apply -f deploy/nginx-ingress-controller.yaml
