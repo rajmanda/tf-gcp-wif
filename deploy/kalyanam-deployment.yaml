@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: angular-app-container
-          image: dockerrajmanda/kalyanam:173
+          image: dockerrajmanda/kalyanam:174
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -145,6 +145,13 @@ spec:
     - host: shravanikalyanam.com
       http:
         paths:
+          - path: /admins/alladmins
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090        
           - path: /rsvp/allrsvps
             pathType: Prefix
             backend:
@@ -190,6 +197,13 @@ spec:
     - host: rajmanda-dev.com
       http:
         paths:
+          - path: /admins/alladmins
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090        
           - path: /rsvp/allrsvps
             pathType: Prefix
             backend:
