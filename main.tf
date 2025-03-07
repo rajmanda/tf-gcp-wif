@@ -1,13 +1,24 @@
-resource "google_storage_bucket" "my-tf-gcp-wif-bucket-01" {
-  name          = "tf-gcp-wif-001"
-  location      = "us-east1"
-  force_destroy = true
-  public_access_prevention = "enforced"
+# Generate a random string for the secret value
+resource "random_string" "secret_value" {
+  length  = 16
+  special = true
+  upper   = true
+  lower   = true
+  numeric = true
+}
+# Create the secret in Secret Manager
+resource "google_secret_manager_secret" "galadb_password" {
+  secret_id = "my-secret"
+  
+  replication {
+    auto {}
+  }
 }
 
-resource "google_storage_bucket" "my-tf-gcp-wif-bucket-02" {
-  name          = "tf-gcp-wif-002"
-  location      = "us-east1"
-  force_destroy = true
-  public_access_prevention = "enforced"
+# Add a version to the secret with the generated random string as its value
+resource "google_secret_manager_secret_version" "galadb_password_version" {
+  secret      = google_secret_manager_secret.galadb_password.id
+  secret_data = random_string.secret_value.result
 }
+
+
