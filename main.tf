@@ -8,7 +8,7 @@ resource "random_string" "secret_value" {
 }
 # Create the secret in Secret Manager
 resource "google_secret_manager_secret" "galadb_password" {
-  secret_id = "my-secret"
+  secret_id = "galadb_password"
   
   replication {
     auto {}
