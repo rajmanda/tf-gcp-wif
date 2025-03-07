@@ -115,3 +115,10 @@ By following these steps, you'll have a WIF setup in GCP and your GitHub Actions
 # tf-gcp-wif (Terraform GCP with Identity Federation)
 # tf-gcp-wif (Terraform GCP with Identity Federation)
 # tf-gcp-wif (Terraform GCP with Identity Federation)
+
+
+###### Update the mondodb password once its created  using the branch feature/tf-create-secret
+
+gcloud secrets versions access latest --secret=galadb_password  >> gives you the current password.  Then update password with the command below.
+echo -n "your-new-password" | gcloud secrets versions add galadb_password --data-file=-
+
