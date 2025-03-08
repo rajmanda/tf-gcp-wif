@@ -15,34 +15,55 @@ spec:
       labels:
         app: rsvpbackend
     spec:
-      # securityContext:
-      #   runAsUser: 1000  # Specify the user ID
-      #   runAsGroup: 3000  # Specify the group ID
-      #   fsGroup: 2000     # Specify the file system group
+      serviceAccountName: gke-secret-accessor  # Use the Kubernetes Service Account
       volumes:
-      - name: tmp-volume
-        emptyDir: {}  # Create a writable empty directory
+        - name: tmp-volume
+          emptyDir: {}  # Create a writable empty directory
+        - name: secret-volume
+          emptyDir: {}  # Shared volume for the MongoDB password
+
+      initContainers:
+        - name: fetch-mongodb-password
+          image: dockerrajmanda/rsvpbackend:112
+          volumeMounts:
+            - name: secret-volume
+              mountPath: /etc/secrets  # Mount the secret-volume here too
+          command:
+            - "/bin/sh"
+            - "-c"
+            - |
+              echo "Checking GCP authentication..."
+              gcloud auth list
+              echo "Fetching MongoDB password from GCP Secret Manager..."
+              mkdir -p /etc/secrets  # Create the directory explicitly
+              gcloud secrets versions access latest --secret=galadb_password > /etc/secrets/mongodb_password
+              echo "Password fetched successfully."
 
       containers:
-      - name: rsvpbackend
-        image: dockerrajmanda/rsvpbackend:111
-        ports:
-        - containerPort: 8080
-        env:                                # Add the environment variable for container
-        - name: SPRING_PROFILES_ACTIVE
-          value: dev                        # Specify the profile you want to activate
-        volumeMounts:
-        - name: tmp-volume
-          mountPath: /tmpdir                # Mount the writable temp directory  
-        readinessProbe:
-          httpGet:
-            path: /actuator/health
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        securityContext:
-          allowPrivilegeEscalation: false  # Prevent privilege escalation
-          readOnlyRootFilesystem: false      # Make root filesystem read-only
+        - name: rsvpbackend
+          image: dockerrajmanda/rsvpbackend:112
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: tmp-volume
+              mountPath: /tmpdir
+            - name: secret-volume
+              mountPath: /etc/secrets
+              readOnly: true  # Ensure it's read-only in the main container
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: dev
+            - name: MONGODB_PASSWORD_FILE
+              value: /etc/secrets/mongodb_password  # Point to the file in the mounted volume
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false  # Corrected typo: 'fals' to 'false'
 ---
 apiVersion: v1
 kind: Service
@@ -56,4 +77,4 @@ spec:
     - protocol: TCP
       port: 8090
       targetPort: 8080
-  type: ClusterIP      
+  type: ClusterIP
