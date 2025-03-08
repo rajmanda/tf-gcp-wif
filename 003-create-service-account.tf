@@ -46,3 +46,20 @@ resource "kubernetes_service_account" "gke_secret_accessor" {
     }
   }
 }
+
+# Create IAM Policy Binding between Kubernetes Service Account and GCP Service Account
+# The role roles/iam.serviceAccountTokenCreator allows a Kubernetes Service Account to impersonate a Google Service Account and obtain a Google Cloud token (which allows access to Google Cloud resources).
+resource "google_project_iam_member" "k8s_sa_to_gcp_sa" {
+  project = "properties-app-418208"  # Use your actual project ID
+  role    = "roles/iam.serviceAccountTokenCreator"
+  member  = "serviceAccount:properties-app-418208.svc.id.goog[kalyanam/gke-secret-accessor]"
+}
+
+# IAM Role Binding for the Kubernetes Service Account to impersonate the GCP Service Account
+resource "google_project_iam_binding" "gke_sa_to_secret_accessor" {
+  project = "properties-app-418208"  # Use your actual project ID
+  role    = "roles/secretmanager.secretAccessor"
+  members = [
+    "serviceAccount:${google_service_account.gcp_secret_accessor.email}",
+  ]
+}
