@@ -23,8 +23,11 @@ spec:
           emptyDir: {}  # Shared volume for the MongoDB password
 
       initContainers:
-        - name: fetch-mongodb-password
-          image: dockerrajmanda/rsvpbackend:9
+#        - name: fetch-mongodb-password
+#          image: dockerrajmanda/rsvpbackend:10
+        - name: gcloud-container
+          image: dockerrajmanda/rsvpbackend:10
+
           volumeMounts:
             - name: secret-volume
               mountPath: /etc/secrets  # Mount the secret-volume here too
@@ -41,7 +44,7 @@ spec:
 
       containers:
         - name: rsvpbackend
-          image: dockerrajmanda/rsvpbackend:9
+          image: dockerrajmanda/rsvpbackend:10
           ports:
             - containerPort: 8080
           volumeMounts:
