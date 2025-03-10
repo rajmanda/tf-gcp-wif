@@ -24,7 +24,7 @@ spec:
 
       initContainers:
         - name: gcloud-container
-          image: dockerrajmanda/rsvpbackend:11
+          image: dockerrajmanda/rsvpbackend:12
           volumeMounts:
             - name: secret-volume
               mountPath: /etc/secrets  # Mount the secret-volume here too
@@ -41,7 +41,7 @@ spec:
               echo "Password fetched successfully."
       containers:
         - name: rsvpbackend
-          image: dockerrajmanda/rsvpbackend:11
+          image: dockerrajmanda/rsvpbackend:12
           ports:
             - containerPort: 8080
           volumeMounts:
