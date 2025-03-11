@@ -62,6 +62,13 @@ spec:
                 name: rsvpbackend
                 port:
                   number: 8090
+          - path: /gala-event/update-gala-event
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090                   
           - path: /
             pathType: Prefix
             backend:
@@ -72,6 +79,13 @@ spec:
     - host: rajmanda-dev.com
       http:
         paths:
+          - path: /admins/alladmins
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090        
           - path: /rsvp/allrsvps
             pathType: Prefix
             backend:
@@ -79,13 +93,6 @@ spec:
                 name: rsvpbackend
                 port:
                   number: 8090
-          - path: /admins/alladmins
-            pathType: Prefix
-            backend:
-              service:
-                name: rsvpbackend
-                port:
-                  number: 8090                          
           - path: /rsvp/saversvp
             pathType: Prefix
             backend:
@@ -114,6 +121,13 @@ spec:
                 name: rsvpbackend
                 port:
                   number: 8090
+          - path: /gala-event/update-gala-event
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090                   
           - path: /
             pathType: Prefix
             backend:
