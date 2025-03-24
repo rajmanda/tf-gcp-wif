@@ -26,13 +26,6 @@ spec:
               service:
                 name: rsvpbackend
                 port:
-                  number: 8090 
-          - path: /upload/picture-upload
-            pathType: Prefix
-            backend:
-              service:
-                name: rsvpbackend
-                port:
                   number: 8090                                 
           - path: /admins/alladmins
             pathType: Prefix
@@ -93,6 +86,13 @@ spec:
     - host: rajmanda-dev.com
       http:
         paths:
+          - path: /upload/picture-upload
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090        
           - path: /admins/alladmins
             pathType: Prefix
             backend:
