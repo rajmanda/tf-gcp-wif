@@ -20,6 +20,20 @@ spec:
     - host: shravanikalyanam.com
       http:
         paths:
+          - path: /upload/picture-upload
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090 
+          - path: /upload/picture-upload
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090                                 
           - path: /admins/alladmins
             pathType: Prefix
             backend:
