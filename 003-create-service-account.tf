@@ -63,3 +63,10 @@ resource "google_project_iam_binding" "gke_sa_to_secret_accessor" {
     "serviceAccount:${google_service_account.gcp_secret_accessor.email}",
   ]
 }
+
+# Grant the GCP Service Account access to the GCS bucket
+resource "google_storage_bucket_iam_member" "bucket_access" {
+  bucket = "shravani_kalyanam_bucket"  # Replace with your bucket name
+  role   = "roles/storage.objectAdmin" # This role allows read and write access to objects in the bucket
+  member = "serviceAccount:${google_service_account.gcp_secret_accessor.email}"
+}
