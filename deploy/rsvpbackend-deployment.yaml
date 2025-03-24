@@ -41,7 +41,7 @@ spec:
               echo "Password fetched successfully."
       containers:
         - name: rsvpbackend
-          image: dockerrajmanda/rsvpbackend:18
+          image: dockerrajmanda/rsvpbackend:19
           ports:
             - containerPort: 8080
           volumeMounts:
