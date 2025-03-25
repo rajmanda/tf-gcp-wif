@@ -20,6 +20,13 @@ spec:
     - host: shravanikalyanam.com
       http:
         paths:
+          - path: /upload/list-images
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090         
           - path: /upload/picture-upload
             pathType: Prefix
             backend:
@@ -86,6 +93,13 @@ spec:
     - host: rajmanda-dev.com
       http:
         paths:
+          - path: /upload/list-images
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090 
           - path: /upload/picture-upload
             pathType: Prefix
             backend:
