@@ -6,6 +6,14 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"  # Force HTTPS
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"  # Force HTTPS
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"      # Certificate issuer
+    nginx.ingress.kubernetes.io/enable-cors: "true"         # Enable CORS
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://4200-cs-*"  # Allow origins
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"  # Allow methods
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, Authorization"      # Allow headers
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"  # Allow credentials    
 spec:
   tls:
     - hosts:
