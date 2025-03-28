@@ -1,9 +1,3 @@
-# Configure the Google Cloud provider
-provider "google" {
-  project = "properties-app-418208"  # Replace with your project ID
-  region  = "us-central1"
-}
-
 # Get the Google client configuration for authentication
 data "google_client_config" "default" {}
 
