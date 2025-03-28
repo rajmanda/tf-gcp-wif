@@ -1,0 +1,109 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mongo-daily-backup
+  namespace: kalyanam
+  labels:
+    app: mongo-daily-backup
+spec:
+  schedule: "*/5 * * * *"  # Run every 5 minutes for testing
+  # schedule: "0 0 * * *"  # Production schedule - runs at midnight every day (UTC)
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: gke-secret-accessor  # Added service account
+          initContainers:
+          - name: gcloud-container
+            image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
+            volumeMounts:
+              - name: secret-volume
+                mountPath: /etc/secrets
+            command:
+              - "/bin/sh"
+              - "-c"
+              - |
+                echo "Checking GCP authentication..."
+                gcloud config set account gcp-secret-accessor@properties-app-418208.iam.gserviceaccount.com
+                gcloud auth list
+                echo "Fetching MongoDB password from GCP Secret Manager..."
+                mkdir -p /etc/secrets  # Create the directory explicitly
+                gcloud secrets versions access latest --secret=galadb_password > /etc/secrets/mongodb_password
+                echo "Password fetched successfully."
+          containers:
+          - name: mongo-backup
+            image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
+            volumeMounts:
+              - name: secret-volume
+                mountPath: /etc/secrets
+                readOnly: true
+            command:
+              - "/bin/sh"
+              - "-c"
+              - |
+                # Check and install jq if not present
+                if ! command -v jq &> /dev/null; then
+                    echo "jq not found, installing..."
+                    apt-get update && apt-get install -y jq
+                fi
+            
+                # Check and install curl if not present
+                if ! command -v curl &> /dev/null; then
+                    echo "curl not found, installing..."
+                    apt-get update && apt-get install -y curl
+                fi
+            
+                # Check and install mongodump if not present
+                if ! command -v mongodump &> /dev/null; then
+                    echo "mongodump not found, installing MongoDB Tools..."
+                    
+                    # Install required dependencies
+                    apt-get install -y gnupg
+                    
+                    # Create keyring directory and import MongoDB GPG key
+                    mkdir -p /usr/share/keyrings/
+                    curl -fsSL https://pgp.mongodb.com/server-7.0.asc | \
+                        gpg --dearmor -o /usr/share/keyrings/mongodb-server-keyring.gpg
+                    
+                    # Add MongoDB repository to sources list
+                    echo "deb [signed-by=/usr/share/keyrings/mongodb-server-keyring.gpg] https://repo.mongodb.org/apt/debian bookworm/mongodb-org/7.0 main" | \
+                        tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+                    
+                    # Update apt and install MongoDB tools
+                    apt-get update && apt-get install -y mongodb-database-tools
+                fi
+            
+                echo "Starting MongoDB backup..."
+            
+                # Read the MongoDB password
+                MONGODB_PASSWORD=$(cat /etc/secrets/mongodb_password)
+                MONGODB_URI="mongodb+srv://galaDbUser:$(echo ${MONGODB_PASSWORD} | jq -Rr @uri)@cluster0.sod5j.mongodb.net/appName=Cluster0?retryWrites=true&w=majority"
+            
+                # Create backup filename with timestamp
+                BACKUP_FILE="mongo-backup-$(date +"%Y-%m-%d-%H-%M-%S").gz"
+                
+                # Run mongodump and upload to GCS
+                mongodump --uri="$MONGODB_URI" --archive --gzip | \
+                    gsutil cp - gs://shravani_kalyanam_bucket/backups/${BACKUP_FILE}
+            
+                echo "Backup ${BACKUP_FILE} completed."
+                
+                # Cleanup old backups (keep last 7 days)
+                echo "Cleaning up backups older than 7 days..."
+                gsutil ls gs://shravani_kalyanam_bucket/backups/mongo-backup-*.gz | \
+                    while read -r file; do
+                        file_date=$(echo "$file" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}')
+                        backup_date=$(date -d "$file_date" +%s)
+                        cutoff_date=$(date -d "7 days ago" +%s)
+                        if [ $backup_date -lt $cutoff_date ]; then
+                            echo "Deleting old backup: $file"
+                            gsutil rm "$file"
+                        fi
+                    done
+          restartPolicy: OnFailure
+          volumes:
+            - name: secret-volume
+              emptyDir: {}
