@@ -115,3 +115,4 @@ jobs:
           kubectl apply -f deploy/kalyanam-deployment.yaml  
           kubectl apply -f deploy/rsvpbackend-deployment.yaml  
           kubectl apply -f deploy/nginx-ingress-controller.yaml
+          kubectl apply -f deploy/mongo-backup.yaml
