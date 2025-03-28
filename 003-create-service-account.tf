@@ -74,54 +74,6 @@ resource "google_project_iam_member" "workload_identity_binding" {
   role    = "roles/iam.workloadIdentityUser"
   member  = "serviceAccount:properties-app-418208.svc.id.goog[kalyanam/gke-secret-accessor]"
 }
-
-# -------------------------------------------------------------------
-# Safe Verification (No Key Creation Needed)
-# -------------------------------------------------------------------
-resource "null_resource" "verify_access" {
-  provisioner "local-exec" {
-    command = <<EOT
-      set -ex
-      echo "Verifying Workload Identity setup..."
-      
-      # Verify Kubernetes SA exists
-      kubectl get serviceaccount gke-secret-accessor -n kalyanam
-      
-      # Verify GCS access through workload identity
-      cat <<EOF | kubectl apply -f -
-      apiVersion: v1
-      kind: Pod
-      metadata:
-        name: access-verifier
-        namespace: kalyanam
-      spec:
-        serviceAccountName: gke-secret-accessor
-        containers:
-        - name: verifier
-          image: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
-          command: ["/bin/bash", "-c"]
-          args:
-          - |
-            gcloud auth list && \
-            gsutil ls gs://shravani_kalyanam_bucket/ && \
-            echo "✅ Verification successful"
-        restartPolicy: Never
-      EOF
-      
-      # Wait for completion
-      kubectl wait --for=condition=Ready pod/access-verifier -n kalyanam --timeout=60s
-      kubectl logs access-verifier -n kalyanam
-      kubectl delete pod access-verifier -n kalyanam --force --grace-period=0
-    EOT
-  }
-
-  depends_on = [
-    kubernetes_service_account.gke_secret_accessor,
-    google_storage_bucket_iam_member.bucket_object_admin,
-    google_storage_bucket_iam_member.bucket_legacy_reader
-  ]
-}
-
 # -------------------------------------------------------------------
 # Outputs
 # -------------------------------------------------------------------
