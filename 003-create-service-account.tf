@@ -3,7 +3,7 @@ data "google_client_config" "default" {}
 
 # Fetch details about the GKE cluster
 data "google_container_cluster" "primary" {
-  name     = "simple-autopilot-public-cluster"  # Your GKE cluster name
+  name     = "simple-autopilot-public-cluster"
   location = "us-central1"
 }
 
@@ -29,7 +29,7 @@ resource "null_resource" "create_namespace" {
 
 # Create the GCP Service Account that will access secrets and storage
 resource "google_service_account" "gcp_secret_accessor" {
-  account_id   = "gcp-secret-accessor"  # Unique identifier
+  account_id   = "gcp-secret-accessor"
   display_name = "Service Account for GKE Secret and Storage Access"
 }
 
@@ -45,20 +45,27 @@ resource "google_secret_manager_secret_iam_member" "secret_access" {
 }
 
 # -------------------------------------------------------------------
-# Storage Bucket Access
+# Storage Bucket Access (Enhanced with ALL required permissions)
 # -------------------------------------------------------------------
 
-# Grant full object management permissions (create/update/delete)
-resource "google_storage_bucket_iam_member" "bucket_admin_access" {
-  bucket = "shravani_kalyanam_bucket"  # Your backup bucket
+# 1. Object-level permissions
+resource "google_storage_bucket_iam_member" "bucket_object_admin" {
+  bucket = "shravani_kalyanam_bucket"
   role   = "roles/storage.objectAdmin"
   member = "serviceAccount:${google_service_account.gcp_secret_accessor.email}"
 }
 
-# Grant object listing permissions (required for gsutil operations)
-resource "google_storage_bucket_iam_member" "bucket_list_access" {
+# 2. Bucket listing permissions (fixes the 403 error)
+resource "google_storage_bucket_iam_member" "bucket_legacy_reader" {
   bucket = "shravani_kalyanam_bucket"
-  role   = "roles/storage.objectViewer"  # Includes storage.objects.list
+  role   = "roles/storage.legacyBucketReader"  # Required for gsutil operations
+  member = "serviceAccount:${google_service_account.gcp_secret_accessor.email}"
+}
+
+# 3. Bucket-level write permissions
+resource "google_storage_bucket_iam_member" "bucket_legacy_writer" {
+  bucket = "shravani_kalyanam_bucket"
+  role   = "roles/storage.legacyBucketWriter"
   member = "serviceAccount:${google_service_account.gcp_secret_accessor.email}"
 }
 
@@ -76,7 +83,6 @@ resource "kubernetes_service_account" "gke_secret_accessor" {
       "iam.gke.io/gcp-service-account" = google_service_account.gcp_secret_accessor.email
     }
   }
-
   depends_on = [null_resource.create_namespace]
 }
 
@@ -95,7 +101,50 @@ resource "google_project_iam_member" "token_creator" {
 }
 
 # -------------------------------------------------------------------
-# Output Useful Information
+# Verification Resource (NEW)
+# -------------------------------------------------------------------
+
+resource "google_service_account_key" "sa_key" {
+  service_account_id = google_service_account.gcp_secret_accessor.name
+}
+
+resource "null_resource" "verify_access" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      set -e
+      echo "⏳ Testing GCS access..."
+      
+      # Authenticate as the service account
+      gcloud auth activate-service-account ${google_service_account.gcp_secret_accessor.email} \
+        --key-file=<(echo '${base64decode(google_service_account_key.sa_key.private_key)}')
+      
+      # Test bucket listing (the operation that was failing)
+      if ! gsutil ls gs://shravani_kalyanam_bucket/ >/dev/null 2>&1; then
+        echo "❌ FAILED: Still getting access denied on bucket listing"
+        echo "Debug info:"
+        gcloud projects get-iam-policy ${data.google_client_config.default.project} \
+          --flatten="bindings[].members" \
+          --filter="bindings.members:${google_service_account.gcp_secret_accessor.email}" \
+          --format="table(bindings.role)"
+        exit 1
+      fi
+      
+      echo "✅ Verified GCS access works!"
+    EOT
+    
+    interpreter = ["bash", "-c"]
+  }
+
+  depends_on = [
+    google_storage_bucket_iam_member.bucket_object_admin,
+    google_storage_bucket_iam_member.bucket_legacy_reader,
+    google_storage_bucket_iam_member.bucket_legacy_writer,
+    google_project_iam_member.workload_identity_binding
+  ]
+}
+
+# -------------------------------------------------------------------
+# Outputs
 # -------------------------------------------------------------------
 
 output "kubernetes_service_account" {
@@ -106,9 +155,12 @@ output "gcp_service_account" {
   value = google_service_account.gcp_secret_accessor.email
 }
 
-output "workload_identity_setup_command" {
+output "workload_identity_status" {
   value = <<EOT
-  Workload Identity is now configured. Verify with:
-  kubectl describe serviceaccount ${kubernetes_service_account.gke_secret_accessor.metadata[0].name} -n ${kubernetes_service_account.gke_secret_accessor.metadata[0].namespace}
-  EOT
+Workload Identity configured between:
+KSA: ${kubernetes_service_account.gke_secret_accessor.metadata[0].namespace}/${kubernetes_service_account.gke_secret_accessor.metadata[0].name}
+GSA: ${google_service_account.gcp_secret_accessor.email}
+
+Verification completed. Check Terraform outputs for any errors.
+EOT
 }
