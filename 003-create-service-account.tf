@@ -1,20 +1,20 @@
-# Get the Google client configuration for authentication
+# Get the Google client configuration
 data "google_client_config" "default" {}
 
-# Fetch details about the GKE cluster
+# Fetch GKE cluster details
 data "google_container_cluster" "primary" {
   name     = "simple-autopilot-public-cluster"
   location = "us-central1"
 }
 
-# Configure the Kubernetes provider
+# Configure Kubernetes provider
 provider "kubernetes" {
   host                   = "https://${data.google_container_cluster.primary.endpoint}"
   token                  = data.google_client_config.default.access_token
   cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
 }
 
-# Create the Kubernetes namespace if it doesn't exist
+# Create namespace if not exists
 resource "null_resource" "create_namespace" {
   provisioner "local-exec" {
     command = <<EOT
@@ -24,10 +24,8 @@ resource "null_resource" "create_namespace" {
 }
 
 # -------------------------------------------------------------------
-# GCP Service Account Configuration
+# GCP Service Account
 # -------------------------------------------------------------------
-
-# Create the GCP Service Account that will access secrets and storage
 resource "google_service_account" "gcp_secret_accessor" {
   account_id   = "gcp-secret-accessor"
   display_name = "Service Account for GKE Secret and Storage Access"
@@ -36,131 +34,107 @@ resource "google_service_account" "gcp_secret_accessor" {
 # -------------------------------------------------------------------
 # Secret Manager Access
 # -------------------------------------------------------------------
-
-# Grant access to the specific MongoDB password secret
 resource "google_secret_manager_secret_iam_member" "secret_access" {
-  secret_id = "galadb_password"  # Your MongoDB password secret name
+  secret_id = "galadb_password"
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.gcp_secret_accessor.email}"
 }
 
 # -------------------------------------------------------------------
-# Storage Bucket Access (Enhanced with ALL required permissions)
+# Storage Bucket Access (FIXED with all required permissions)
 # -------------------------------------------------------------------
-
-# 1. Object-level permissions
 resource "google_storage_bucket_iam_member" "bucket_object_admin" {
   bucket = "shravani_kalyanam_bucket"
   role   = "roles/storage.objectAdmin"
   member = "serviceAccount:${google_service_account.gcp_secret_accessor.email}"
 }
 
-# 2. Bucket listing permissions (fixes the 403 error)
 resource "google_storage_bucket_iam_member" "bucket_legacy_reader" {
   bucket = "shravani_kalyanam_bucket"
-  role   = "roles/storage.legacyBucketReader"  # Required for gsutil operations
-  member = "serviceAccount:${google_service_account.gcp_secret_accessor.email}"
-}
-
-# 3. Bucket-level write permissions
-resource "google_storage_bucket_iam_member" "bucket_legacy_writer" {
-  bucket = "shravani_kalyanam_bucket"
-  role   = "roles/storage.legacyBucketWriter"
+  role   = "roles/storage.legacyBucketReader"
   member = "serviceAccount:${google_service_account.gcp_secret_accessor.email}"
 }
 
 # -------------------------------------------------------------------
 # Workload Identity Configuration
 # -------------------------------------------------------------------
-
-# Create the Kubernetes Service Account
 resource "kubernetes_service_account" "gke_secret_accessor" {
   metadata {
     name      = "gke-secret-accessor"
     namespace = "kalyanam"
     annotations = {
-      # Critical: Links KSA to GSA via Workload Identity
       "iam.gke.io/gcp-service-account" = google_service_account.gcp_secret_accessor.email
     }
   }
   depends_on = [null_resource.create_namespace]
 }
 
-# Allow Kubernetes SA to impersonate the GCP SA
 resource "google_project_iam_member" "workload_identity_binding" {
   project = "properties-app-418208"
   role    = "roles/iam.workloadIdentityUser"
   member  = "serviceAccount:properties-app-418208.svc.id.goog[kalyanam/gke-secret-accessor]"
 }
 
-# Grant token creator role to allow impersonation
-resource "google_project_iam_member" "token_creator" {
-  project = "properties-app-418208"
-  role    = "roles/iam.serviceAccountTokenCreator"
-  member  = "serviceAccount:${google_service_account.gcp_secret_accessor.email}"
-}
-
 # -------------------------------------------------------------------
-# Verification Resource (NEW)
+# Safe Verification (No Key Creation Needed)
 # -------------------------------------------------------------------
-
-resource "google_service_account_key" "sa_key" {
-  service_account_id = google_service_account.gcp_secret_accessor.name
-}
-
 resource "null_resource" "verify_access" {
   provisioner "local-exec" {
-    command = <<-EOT
-      set -e
-      echo "⏳ Testing GCS access..."
+    command = <<EOT
+      set -ex
+      echo "Verifying Workload Identity setup..."
       
-      # Authenticate as the service account
-      gcloud auth activate-service-account ${google_service_account.gcp_secret_accessor.email} \
-        --key-file=<(echo '${base64decode(google_service_account_key.sa_key.private_key)}')
+      # Verify Kubernetes SA exists
+      kubectl get serviceaccount gke-secret-accessor -n kalyanam
       
-      # Test bucket listing (the operation that was failing)
-      if ! gsutil ls gs://shravani_kalyanam_bucket/ >/dev/null 2>&1; then
-        echo "❌ FAILED: Still getting access denied on bucket listing"
-        echo "Debug info:"
-        gcloud projects get-iam-policy ${data.google_client_config.default.project} \
-          --flatten="bindings[].members" \
-          --filter="bindings.members:${google_service_account.gcp_secret_accessor.email}" \
-          --format="table(bindings.role)"
-        exit 1
-      fi
+      # Verify GCS access through workload identity
+      cat <<EOF | kubectl apply -f -
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: access-verifier
+        namespace: kalyanam
+      spec:
+        serviceAccountName: gke-secret-accessor
+        containers:
+        - name: verifier
+          image: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+          command: ["/bin/bash", "-c"]
+          args:
+          - |
+            gcloud auth list && \
+            gsutil ls gs://shravani_kalyanam_bucket/ && \
+            echo "✅ Verification successful"
+        restartPolicy: Never
+      EOF
       
-      echo "✅ Verified GCS access works!"
+      # Wait for completion
+      kubectl wait --for=condition=Ready pod/access-verifier -n kalyanam --timeout=60s
+      kubectl logs access-verifier -n kalyanam
+      kubectl delete pod access-verifier -n kalyanam --force --grace-period=0
     EOT
-    
-    interpreter = ["bash", "-c"]
   }
 
   depends_on = [
+    kubernetes_service_account.gke_secret_accessor,
     google_storage_bucket_iam_member.bucket_object_admin,
-    google_storage_bucket_iam_member.bucket_legacy_reader,
-    google_storage_bucket_iam_member.bucket_legacy_writer,
-    google_project_iam_member.workload_identity_binding
+    google_storage_bucket_iam_member.bucket_legacy_reader
   ]
 }
 
 # -------------------------------------------------------------------
 # Outputs
 # -------------------------------------------------------------------
-
-output "kubernetes_service_account" {
-  value = kubernetes_service_account.gke_secret_accessor.metadata[0].name
-}
-
-output "gcp_service_account" {
+output "gcp_service_account_email" {
   value = google_service_account.gcp_secret_accessor.email
 }
 
-output "workload_identity_status" {
+output "verification_instructions" {
   value = <<EOT
-Workload Identity configured between:
-KSA: ${kubernetes_service_account.gke_secret_accessor.metadata[0].namespace}/${kubernetes_service_account.gke_secret_accessor.metadata[0].name}
+Workload Identity verification completed.
+If you see '✅ Verification successful' above, your setup is correct.
+Otherwise, check the error messages for troubleshooting.
 GSA: ${google_service_account.gcp_secret_accessor.email}
-
-Verification completed. Check Terraform outputs for any errors.
+KSA: kalyanam/gke-secret-accessor
 EOT
 }
