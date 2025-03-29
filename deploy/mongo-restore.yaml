@@ -1,74 +1,91 @@
-apiVersion: v1
-kind: Pod
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: mongo-restore-pod
+  name: mongo-restore
   namespace: kalyanam
+  labels:
+    app: mongo-restore
 spec:
-  serviceAccountName: gke-secret-accessor
-  restartPolicy: Never
-  volumes:
-    - name: secret-volume
-      emptyDir: {}
-    - name: tmp-volume  # <-- Added for /tmp
-      emptyDir: {}
-  initContainers:
-    - name: gcloud-container
-      image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
-      volumeMounts:
+  template:
+    spec:
+      serviceAccountName: gke-secret-accessor
+      initContainers:
+        - name: gcloud-container
+          image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
+          volumeMounts:
+            - name: secret-volume
+              mountPath: /etc/secrets
+          command:
+            - "/bin/sh"
+            - "-c"
+            - |
+              echo "Checking GCP authentication..."
+              gcloud config set account gcp-secret-accessor@properties-app-418208.iam.gserviceaccount.com
+              gcloud auth list
+              echo "Fetching MongoDB password from GCP Secret Manager..."
+              mkdir -p /etc/secrets
+              gcloud secrets versions access latest --secret=galadb_password > /etc/secrets/mongodb_password
+              echo "Password fetched successfully."
+      containers:
+        - name: mongo-restore
+          image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
+          volumeMounts:
+            - name: secret-volume
+              mountPath: /etc/secrets
+              readOnly: true
+          command:
+            - "/bin/sh"
+            - "-c"
+            - |
+              # Install required tools if not present
+              if ! command -v jq &> /dev/null; then
+                  echo "jq not found, installing..."
+                  apt-get update && apt-get install -y jq
+              fi
+              
+              if ! command -v mongorestore &> /dev/null; then
+                  echo "mongorestore not found, installing MongoDB Tools..."
+                  
+                  # Install MongoDB tools
+                  apt-get install -y gnupg
+                  mkdir -p /usr/share/keyrings/
+                  curl -fsSL https://pgp.mongodb.com/server-7.0.asc | \
+                      gpg --dearmor -o /usr/share/keyrings/mongodb-server-keyring.gpg
+                  
+                  echo "deb [signed-by=/usr/share/keyrings/mongodb-server-keyring.gpg] https://repo.mongodb.org/apt/debian bookworm/mongodb-org/7.0 main" | \
+                      tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+                  
+                  apt-get update && apt-get install -y mongodb-database-tools
+              fi
+              
+              echo "Starting MongoDB restore process..."
+              
+              # Read and properly encode the MongoDB password
+              MONGODB_PASSWORD=$(cat /etc/secrets/mongodb_password)
+              ENCODED_PW=$(echo "${MONGODB_PASSWORD}" | jq -Rr @uri)
+              MONGODB_URI="mongodb+srv://galaDbUser:${ENCODED_PW}@cluster0.sod5j.mongodb.net/galadb?appName=Cluster0&retryWrites=true&w=majority"
+              
+              # Get the latest backup file from GCS
+              LATEST_BACKUP=$(gsutil ls gs://shravani_kalyanam_bucket/backups/mongo-backup-*.gz | sort -r | head -n 1)
+              
+              if [ -z "$LATEST_BACKUP" ]; then
+                  echo "No backup files found in GCS bucket!"
+                  exit 1
+              fi
+              
+              echo "Restoring from backup: $LATEST_BACKUP"
+              
+              # Download and restore the backup to specific collection
+              gsutil cat "$LATEST_BACKUP" | \
+                  mongorestore --uri="$MONGODB_URI" --archive --gzip --drop \
+                  --nsExclude="*" \
+                  --nsInclude="galadb.*" \
+                  --nsFrom="galadb.*" \
+                  --nsTo="galadb.backuptest0329"
+              
+              echo "Restore completed successfully into collection backuptest0329 from $LATEST_BACKUP"
+      restartPolicy: OnFailure
+      volumes:
         - name: secret-volume
-          mountPath: /etc/secrets
-      command:
-        - "/bin/sh"
-        - "-c"
-        - |
-          echo "Checking GCP authentication..."
-          gcloud config set account gcp-secret-accessor@properties-app-418208.iam.gserviceaccount.com
-          gcloud auth list
-          echo "Fetching MongoDB password from GCP Secret Manager..."
-          mkdir -p /etc/secrets  # Create the directory explicitly
-          gcloud secrets versions access latest --secret=galadb_password > /etc/secrets/mongodb_password
-          echo "Password fetched successfully."
-  containers:
-    - name: restore-container
-      image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
-      volumeMounts:
-        - name: secret-volume
-          mountPath: /etc/secrets
-          readOnly: true
-        - name: tmp-volume  # <-- Proper /tmp mount
-          mountPath: /tmp
-      command:
-        - "/bin/sh"
-        - "-c"
-        - |
-          # Install tools
-          apt-get update && apt-get install -y jq gnupg awscli
-          
-          # Install MongoDB Tools
-          curl -fsSL https://pgp.mongodb.com/server-7.0.asc | \
-            gpg --dearmor -o /usr/share/keyrings/mongodb-server-keyring.gpg
-          echo "deb [signed-by=/usr/share/keyrings/mongodb-server-keyring.gpg] https://repo.mongodb.org/apt/debian bookworm/mongodb-org/7.0 main" | \
-            tee /etc/apt/sources.list.d/mongodb-org-7.0.list
-          apt-get update && apt-get install -y mongodb-database-tools
-
-          # Get credentials
-          MONGODB_PASSWORD=$(cat /etc/secrets/mongodb_password)
-          MONGODB_URI="mongodb+srv://galaDbUser:$(echo ${MONGODB_PASSWORD} | jq -Rr @uri)@cluster0.sod5j.mongodb.net"
-
-          # Option A: GCS Backup
-          LATEST_BACKUP=$(gsutil ls -l gs://shravani_kalyanam_bucket/backups/mongo-backup-*.gz | sort -k 2 | tail -n 1 | awk '{print $3}')
-          gsutil cp "${LATEST_BACKUP}" /tmp/latest_backup.gz
-          echo "Restong from ${LATEST_BACKUP}"
-
-          # Restore to new DB
-          NEW_DB_NAME="restored_db_$(date +"%Y%m%d_%H%M%S")"
-          mongorestore --uri="${MONGODB_URI}" \
-            --archive=/tmp/latest_backup.gz \
-            --gzip \
-            --nsFrom="*" \
-            --nsTo="${NEW_DB_NAME}.*" \
-            --drop
-
-          # Verification
-          echo "=== Restore Complete ==="
-          #mongosh "${MONGODB_URI}/${NEW_DB_NAME}" --eval "db.stats()"
+          emptyDir: {}
+  backoffLimit: 1  # Only retry once if fails
