@@ -55,16 +55,10 @@ spec:
           MONGODB_PASSWORD=$(cat /etc/secrets/mongodb_password)
           MONGODB_URI="mongodb+srv://galaDbUser:$(echo ${MONGODB_PASSWORD} | jq -Rr @uri)@cluster0.sod5j.mongodb.net"
 
-          # --- Choose either GCS or S3 method below ---
-
           # Option A: GCS Backup
           LATEST_BACKUP=$(gsutil ls -l gs://shravani_kalyanam_bucket/backups/mongo-backup-*.gz | sort -k 2 | tail -n 1 | awk '{print $3}')
           gsutil cp "${LATEST_BACKUP}" /tmp/latest_backup.gz
-
-          # Option B: S3 Backup (uncomment to use)
-          # LATEST_BACKUP=$(aws s3api list-objects-v2 --bucket your-s3-bucket --prefix backups/ \
-          #   --query 'sort_by(Contents,&LastModified)[-1].Key' --output text)
-          # aws s3 cp "s3://your-s3-bucket/${LATEST_BACKUP}" /tmp/latest_backup.gz
+          echo "Restong from ${LATEST_BACKUP}"
 
           # Restore to new DB
           NEW_DB_NAME="restored_db_$(date +"%Y%m%d_%H%M%S")"
@@ -77,4 +71,4 @@ spec:
 
           # Verification
           echo "=== Restore Complete ==="
-          mongosh "${MONGODB_URI}/${NEW_DB_NAME}" --eval "db.stats()"
+          #mongosh "${MONGODB_URI}/${NEW_DB_NAME}" --eval "db.stats()"
