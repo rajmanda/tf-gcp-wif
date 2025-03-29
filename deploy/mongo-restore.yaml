@@ -11,31 +11,23 @@ spec:
       emptyDir: {}
     - name: tmp-volume  # <-- Added for /tmp
       emptyDir: {}
-    - name: aws-credentials  # <-- For S3 access
-      secret:
-        secretName: aws-s3-credentials  # Pre-created secret
-
   initContainers:
-    - name: credential-loader
+    - name: gcloud-container
       image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
       volumeMounts:
         - name: secret-volume
           mountPath: /etc/secrets
-        - name: aws-credentials  # <-- Mount AWS creds
-          mountPath: /etc/aws
       command:
         - "/bin/sh"
         - "-c"
         - |
-          # Load MongoDB password
+          echo "Checking GCP authentication..."
+          gcloud config set account gcp-secret-accessor@properties-app-418208.iam.gserviceaccount.com
+          gcloud auth list
+          echo "Fetching MongoDB password from GCP Secret Manager..."
+          mkdir -p /etc/secrets  # Create the directory explicitly
           gcloud secrets versions access latest --secret=galadb_password > /etc/secrets/mongodb_password
-          
-          # Configure AWS CLI (if using S3)
-          echo "[default]
-          aws_access_key_id=$(cat /etc/aws/access-key)
-          aws_secret_access_key=$(cat /etc/aws/secret-key)
-          region=us-east-1" > /root/.aws/config
-
+          echo "Password fetched successfully."
   containers:
     - name: restore-container
       image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
@@ -45,8 +37,6 @@ spec:
           readOnly: true
         - name: tmp-volume  # <-- Proper /tmp mount
           mountPath: /tmp
-        - name: aws-credentials
-          mountPath: /etc/aws
       command:
         - "/bin/sh"
         - "-c"
