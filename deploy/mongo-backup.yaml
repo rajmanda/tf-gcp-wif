@@ -80,8 +80,10 @@ spec:
             
                 # Read the MongoDB password
                 MONGODB_PASSWORD=$(cat /etc/secrets/mongodb_password)
-                MONGODB_URI="mongodb+srv://galaDbUser:$(echo ${MONGODB_PASSWORD} | jq -Rr @uri)@cluster0.sod5j.mongodb.net/appName=Cluster0?retryWrites=true&w=majority"
-            
+                ENCODED_PW=$(echo "${MONGODB_PASSWORD}" | jq -Rr @uri)
+                MONGODB_URI="mongodb+srv://galaDbUser:${ENCODED_PW}@cluster0.sod5j.mongodb.net/galadb?appName=Cluster0&retryWrites=true&w=majority"
+
+
                 # Create backup filename with timestamp
                 BACKUP_FILE="mongo-backup-$(date +"%Y-%m-%d-%H-%M-%S").gz"
                 
