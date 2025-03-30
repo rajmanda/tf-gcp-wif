@@ -194,4 +194,8 @@ Status:
   Renewal Time:            2025-04-20T17:29:50Z
   Revision:                1
 
-03/31/2025: create new certificate
+Steps to renew :
+kubectl delete certificate rajmanda-dev-letsencrypt-prod-tls -n kalyanam
+terraform delete 
+terradorm apply 
+verify the cert -   kubectl describe certificate rajmanda-dev-letsencrypt-prod-tls -n kalyanam

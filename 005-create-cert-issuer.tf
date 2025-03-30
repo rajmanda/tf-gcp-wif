@@ -53,29 +53,3 @@ resource "kubernetes_manifest" "rajmanda-dev-letsencrypt-prod-tls_kalyanamns_cer
     ]
   }
 }
-
-resource "kubernetes_manifest" "rajmanda-dev-letsencrypt-prod-tls_eurekans_certificate" {
-  depends_on = [kubernetes_manifest.letsencrypt_prod_cluster_issuer]
-
-  manifest = {
-    apiVersion = "cert-manager.io/v1"
-    kind       = "Certificate"
-    metadata = {
-      name      = "rajmanda-dev-letsencrypt-prod-tls"
-      namespace = "eureka" ###namespace as the service that the nginx controller is mapping to
-    }
-    spec = {
-      secretName = "rajmanda-dev-letsencrypt-prod-tls"
-      dnsNames   = ["rajmanda-dev.com", "shravanikalyanam.com"]
-      issuerRef = {
-        name = "letsencrypt-prod"
-        kind = "ClusterIssuer"
-      }
-    }
-  }
-  lifecycle {
-    ignore_changes = [
-      manifest,
-    ]
-  }
-}
