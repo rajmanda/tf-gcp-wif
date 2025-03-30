@@ -75,14 +75,14 @@ spec:
               
               echo "Restoring from backup: $LATEST_BACKUP"
               
+              CURRENT_DATE=$(date +%m%d%y)
+              
               # Download and restore the backup to specific collection
               gsutil cat "$LATEST_BACKUP" | \
-                  mongorestore --uri="$MONGODB_URI" --archive --gzip --drop \
-                  --nsExclude="*" \
-                  --nsInclude="galadb.*" \
-                  --nsFrom="galadb.*" \
-                  --nsTo="galadb.backuptest0329"
-              
+                mongorestore --uri="$MONGODB_URI" --archive --gzip --drop \
+                --nsInclude="galadb.*" \
+                --nsFrom="galadb.*" --nsTo="galadb.D${CURRENT_DATE}.*"
+                      
               echo "Restore completed successfully into collection backuptest0329 from $LATEST_BACKUP"
       restartPolicy: OnFailure
       volumes:
