@@ -39,9 +39,9 @@ spec:
               mkdir -p /etc/secrets  # Create the directory explicitly
               gcloud secrets versions access latest --secret=galadb_password > /etc/secrets/mongodb_password
               echo "Password fetched successfully."
-      containers:
+      containers:    
         - name: rsvpbackend
-          image: dockerrajmanda/rsvpbackend:45
+          image: dockerrajmanda/rsvpbackend:47
           ports:
             - containerPort: 8080
           volumeMounts:
@@ -64,6 +64,64 @@ spec:
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: false  # Corrected typo: 'fals' to 'false'
+
+        # # MongoDB Backup Sidecar  - Works but moving it to runs as cron job in mongo-backup.yaml
+        # - name: mongo-backup
+        #   image: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
+        #   volumeMounts:
+        #     - name: secret-volume
+        #       mountPath: /etc/secrets
+        #       readOnly: true
+        #   command:
+        #     - "/bin/sh"
+        #     - "-c"
+        #     - |
+        #       while true; do
+        #           # Check and install jq if not present
+        #           if ! command -v jq &> /dev/null; then
+        #               echo "jq not found, installing..."
+        #               apt-get update && apt-get install -y jq
+        #           fi
+          
+        #           # Check and install curl if not present
+        #           if ! command -v curl &> /dev/null; then
+        #               echo "curl not found, installing..."
+        #               apt-get update && apt-get install -y curl
+        #           fi
+          
+        #           # Check and install mongodump if not present
+        #           if ! command -v mongodump &> /dev/null; then
+        #               echo "mongodump not found, installing MongoDB Tools..."
+                      
+        #               # Install required dependencies
+        #               apt-get install -y gnupg
+                      
+        #               # Create keyring directory and import MongoDB GPG key
+        #               mkdir -p /usr/share/keyrings/
+        #               curl -fsSL https://pgp.mongodb.com/server-7.0.asc | \
+        #                   gpg --dearmor -o /usr/share/keyrings/mongodb-server-keyring.gpg
+                      
+        #               # Add MongoDB repository to sources list
+        #               echo "deb [signed-by=/usr/share/keyrings/mongodb-server-keyring.gpg] https://repo.mongodb.org/apt/debian bookworm/mongodb-org/7.0 main" | \
+        #                   tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+                      
+        #               # Update apt and install MongoDB tools
+        #               apt-get update && apt-get install -y mongodb-database-tools
+        #           fi
+          
+        #           echo "Starting MongoDB backup..."
+          
+        #           # Read the MongoDB password
+        #           MONGODB_PASSWORD=$(cat /etc/secrets/mongodb_password)
+        #           MONGODB_URI="mongodb+srv://galaDbUser:$(echo ${MONGODB_PASSWORD} | jq -Rr @uri)@cluster0.sod5j.mongodb.net/appName=Cluster0?retryWrites=true&w=majority"
+          
+        #           # Run mongodump and upload to GCS
+        #           mongodump --uri="$MONGODB_URI" --archive --gzip | \
+        #               gsutil cp - gs://shravani_kalyanam_bucket/backups/mongo-backup-$(date +"%Y-%m-%d-%H-%M-%S").gz
+          
+        #           echo "Backup completed. Next run in 4 hours..."
+        #           sleep 14400  # 4 hours in seconds
+        #       done            
 ---
 apiVersion: v1
 kind: Service
