@@ -18,9 +18,10 @@ spec:
       labels:
         app: kalyanam
     spec:
+      serviceAccountName: gke-secret-accessor  # Use the Kubernetes Service Account
       containers:
         - name: angular-app-container
-          image: dockerrajmanda/kalyanam:308
+          image: dockerrajmanda/kalyanam:309
           imagePullPolicy: Always
           ports:
             - containerPort: 80
