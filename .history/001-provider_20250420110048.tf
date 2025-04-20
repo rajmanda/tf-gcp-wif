@@ -20,6 +20,11 @@ provider "google" {
   region  = "us-central1" # Specify the desired region
 }
 
+# Data block to refer to the existing GKE cluster
+data "google_container_cluster" "existing" {
+  name     = "simple-autopilot-public-cluster"  # Replace with your GKE cluster name
+  location = "us-central1"                      # Replace with your cluster location
+}
 
 output "kubernetes_cluster_endpoint" {
   value = data.google_container_cluster.primary.endpoint

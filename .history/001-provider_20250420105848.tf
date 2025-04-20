@@ -1,3 +1,24 @@
+terraform {
+  backend "gcs" {
+    bucket  = "tf-gcp-wif-tfstate"
+    prefix  = "terraform/state"   # Optional, used for organization within the bucket
+  }
+  required_providers {
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.16.1" # Check for the latest version
+    }
+    kubernetes = {
+      source = "hashicorp/kubernetes"
+      version = "2.33.0"
+    }
+  }
+}
+
+provider "google" {
+  project = "properties-app-418208"
+  region  = "us-central1" # Specify the desired region
+}
 # Data block to refer to the existing GKE cluster
 data "google_container_cluster" "existing" {
   name     = "simple-autopilot-public-cluster"  # Replace with your GKE cluster name
@@ -33,55 +54,3 @@ provider "helm" {
     cluster_ca_certificate = base64decode(data.google_container_cluster.primary.master_auth[0].cluster_ca_certificate)
   }
 }
-
-# Deploy resources on GKE
-resource "kubernetes_namespace" "nginxns" {
-  #depends_on = [module.kubernetes-engine_example_simple_autopilot_public]
-  depends_on = [ data.google_container_cluster.existing ]
-  metadata {
-    name = "ingress-nginx"
-  }
-}
-
-
-# Use existing static IP in the same region
-data "google_compute_address" "regional_static_ip" {
-  name   = "regional-ngnix-loadbalancer-ip"
-  region = "us-central1"
-}
-
-# Output the existing static IP address
-output "existing_static_ip_address" {
-  value = data.google_compute_address.regional_static_ip.address
-}
-
-# Helm release for NGINX ingress with the existing static IP
-resource "helm_release" "nginx_ingress" {
-  depends_on = [kubernetes_namespace.nginxns]
-  name       = "nginx-ingress"
-  repository = "https://helm.nginx.com/stable"
-  chart      = "nginx-ingress"
-  version    = "1.4.0"  # Specify the desired chart version
-  namespace  = kubernetes_namespace.nginxns.metadata[0].name  # Specify the namespace
-
-  values = [
-    <<EOF
-controller:
-  service:
-    enabled: true
-    annotations:
-      cloud.google.com/load-balancer-type: "External"  # Specify load balancer type
-    loadBalancerIP: "${data.google_compute_address.regional_static_ip.address}"  # Reference existing static IP
-  metrics:
-    enabled: true
-  replicaCount: 1  # Set number of replicas to 1
-EOF
-  ]
-
-  set {
-    name  = "controller.service.annotations.prometheus\\.io/port"
-    value = "9127"
-    type  = "string"
-  }
-}
-

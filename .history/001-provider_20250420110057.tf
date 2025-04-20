@@ -21,6 +21,7 @@ provider "google" {
 }
 
 
+
 output "kubernetes_cluster_endpoint" {
   value = data.google_container_cluster.primary.endpoint
 }
