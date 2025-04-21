@@ -32,7 +32,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: acme-http-solver
+                name: cm-acme-http-solver-w784f
                 port:
                   number: 8089  # Replace with the actual port used by cert-manager's HTTP solver - This service is usually created temporarily by cert-manager in the namespace where your ingress and certificate resources are defined - in kalyanam
           - path: /upload/list-images
