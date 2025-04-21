@@ -28,6 +28,13 @@ spec:
     - host: shravanikalyanam.com
       http:
         paths:
+          - path: /.well-known/acme-challenge/
+            pathType: Prefix
+            backend:
+              service:
+                name: acme-http-solver
+                port:
+                  number: 8089  # Replace with the actual port used by cert-manager's HTTP solver - This service is usually created temporarily by cert-manager in the namespace where your ingress and certificate resources are defined - in kalyanam
           - path: /upload/list-images
             pathType: Prefix
             backend:
