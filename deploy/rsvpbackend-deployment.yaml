@@ -38,10 +38,12 @@ spec:
               echo "Fetching MongoDB password from GCP Secret Manager..."
               mkdir -p /etc/secrets  # Create the directory explicitly
               gcloud secrets versions access latest --secret=galadb_password > /etc/secrets/mongodb_password
-              echo "Password fetched successfully."
+              echo "MONGODB Password fetched successfully."
+              gcloud secrets versions access latest --secret=gmail_password > /etc/secrets/gmail_password
+              echo "GMAIL Password fetched successfully."
       containers:    
         - name: rsvpbackend
-          image: dockerrajmanda/rsvpbackend:48
+          image: dockerrajmanda/rsvpbackend:49
           ports:
             - containerPort: 8080
           volumeMounts:
@@ -55,6 +57,8 @@ spec:
               value: dev
             - name: MONGODB_PASSWORD_FILE
               value: /etc/secrets/mongodb_password  # Point to the file in the mounted volume
+            - name: GMAIL_PASSWORD_FILE
+              value: /etc/secrets/gmail_password  # Point to the file in the mounted volume
           readinessProbe:
             httpGet:
               path: /actuator/health
@@ -136,4 +140,3 @@ spec:
       port: 8090
       targetPort: 8080
   type: ClusterIP
-  
