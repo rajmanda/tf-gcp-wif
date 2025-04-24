@@ -121,4 +121,5 @@ By following these steps, you'll have a WIF setup in GCP and your GitHub Actions
 
 gcloud secrets versions access latest --secret=galadb_password  >> gives you the current password.  Then update password with the command below.
 echo -n "your-new-password" | gcloud secrets versions add galadb_password --data-file=-
+echo -n "your-new-password" | gcloud secrets versions add gmail_password --data-file=-
 
