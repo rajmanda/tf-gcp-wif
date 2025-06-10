@@ -145,6 +145,7 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: rsvpbackend-hpa
+  namespace: kalyanam
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
