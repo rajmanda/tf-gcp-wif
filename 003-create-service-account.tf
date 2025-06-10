@@ -49,6 +49,13 @@ resource "google_project_iam_member" "storage_create_access" {
   member  = "serviceAccount:${google_service_account.gcp_secret_accessor.email}"
 }
 
+# Grant the GCP Service Account permission to delete objects in Cloud Storage
+resource "google_project_iam_member" "storage_delete_access" {
+  project = "properties-app-418208" # Use your actual project ID
+  role    = "roles/storage.objectAdmin"
+  member  = "serviceAccount:${google_service_account.gcp_secret_accessor.email}"
+}
+
 # Create a Kubernetes Service Account
 resource "kubernetes_service_account" "gke_secret_accessor" {
   metadata {
