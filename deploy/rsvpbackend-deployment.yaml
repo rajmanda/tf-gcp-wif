@@ -43,7 +43,7 @@ spec:
               echo "GMAIL Password fetched successfully."
       containers:    
         - name: rsvpbackend
-          image: dockerrajmanda/rsvpbackend:52
+          image: dockerrajmanda/rsvpbackend:53
           ports:
             - containerPort: 8080
           volumeMounts:
@@ -140,36 +140,3 @@ spec:
       port: 8090
       targetPort: 8080
   type: ClusterIP
----
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: rsvpbackend-hpa
-  namespace: kalyanam
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: rsvpbackend
-  minReplicas: 1
-  maxReplicas: 2
-  metrics:
-    - type: Resource
-      resource:
-        name: memory
-        target:
-          type: Utilization
-          averageUtilization: 70
-  behavior:
-    scaleUp:
-      stabilizationWindowSeconds: 300  # 5 minutes
-      policies:
-        - type: Pods
-          value: 1
-          periodSeconds: 120
-    scaleDown:
-      stabilizationWindowSeconds: 300  # 5 minutes
-      policies:
-        - type: Pods
-          value: 1
-          periodSeconds: 120
