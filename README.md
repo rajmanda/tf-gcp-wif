@@ -152,6 +152,7 @@ Step 4: Try Terraform Command
   5. Confirm the namespace has been deleted
      
 Running on 01/23/2024
+Running on 07/01/2025
 
 
 ############ Please remember to run this branch agaain on April 19th ------ because 
