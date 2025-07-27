@@ -41,7 +41,14 @@ spec:
               service:
                 name: rsvpbackend
                 port:
-                  number: 8090         
+                  number: 8090 
+          - path: /upload/multi-picture-upload 
+            pathType: Prefix
+            backend:
+              service:
+                name: rsvpbackend
+                port:
+                  number: 8090           
           - path: /upload/picture-upload
             pathType: Prefix
             backend:
