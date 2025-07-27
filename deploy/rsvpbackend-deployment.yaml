@@ -43,7 +43,7 @@ spec:
               echo "GMAIL Password fetched successfully."
       containers:    
         - name: rsvpbackend
-          image: dockerrajmanda/rsvpbackend:104
+          image: dockerrajmanda/rsvpbackend:105
           ports:
             - containerPort: 8080
           volumeMounts:
