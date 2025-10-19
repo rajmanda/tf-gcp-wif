@@ -142,5 +142,6 @@ Step 4: Try Terraform Command
   terraform plan
 
 Running on 01/23/2024
+Creating cluster on 010/19/2025
 
   
