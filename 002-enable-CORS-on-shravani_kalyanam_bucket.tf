@@ -15,11 +15,11 @@
 # }
 
 resource "google_storage_bucket" "shravani" {
-  name     = "kalyanam_bucket"
+  name     = var.gcs_bucket_name
   location = "US"
 
   cors {
-    origin          = [var.frontend_url] # Use the variable here
+    origin          = split(",", var.frontend_url) # Split comma-separated string into list
     method          = ["GET", "HEAD", "PUT", "POST", "DELETE", "OPTIONS"]
     response_header = ["Content-Type", "x-goog-resumable", "Range", "Accept", "Authorization", "x-goog-meta-*"]
     max_age_seconds = 3600
