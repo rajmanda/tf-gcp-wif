@@ -6,6 +6,9 @@ resource "google_cloud_run_v2_service" "rsvp_backend" {
 
   # Allow public (unauthenticated) access to the service
   ingress = "INGRESS_TRAFFIC_ALL"
+  
+  # Disable deletion protection to allow updates
+  deletion_protection = false
 
   template {
     service_account = google_service_account.rsvp_sa.email
