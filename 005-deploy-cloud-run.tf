@@ -53,7 +53,36 @@ resource "google_cloud_run_v2_service" "rsvp_backend" {
       env {
         # This environment variable will populate the 'app.cors.allowed-origins' property in Spring Boot
         name  = "CORS_ALLOWED_ORIGINS"
-        value = var.frontend_url # Use the same variable here
+        value = var.frontend_url
+      }
+
+      # Resource limits for better stability
+      resources {
+        limits = {
+          cpu    = "1"
+          memory = "512Mi"
+        }
+      }
+
+      # Startup and liveness probes for health checking
+      startup_probe {
+        http_get {
+          path = "/actuator/health"
+          port = 8080
+        }
+        initial_delay_seconds = 10
+        period_seconds        = 10
+        failure_threshold     = 3
+      }
+
+      liveness_probe {
+        http_get {
+          path = "/actuator/health"
+          port = 8080
+        }
+        period_seconds    = 10
+        timeout_seconds   = 5
+        failure_threshold = 3
       }
     }
   }
