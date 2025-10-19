@@ -19,7 +19,7 @@ resource "google_secret_manager_secret_iam_member" "gmail_user_accessor" {
   member    = "serviceAccount:${google_service_account.rsvp_sa.email}"
 
   depends_on = [
-    google_project_service.secretmanager_api
+    google_secret_manager_secret.gmail_username
   ]
 }
 
