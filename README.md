@@ -133,7 +133,7 @@ The Cloud Run service receives:
 - `SPRING_DATA_MONGODB_URI`: MongoDB connection string (from Secret Manager)
 - `SPRING_MAIL_USERNAME`: Gmail username (from Secret Manager)
 - `SPRING_MAIL_PASSWORD`: Gmail app password (from Secret Manager)
-- `APP_CORS_ALLOWED_ORIGINSINS`: Comma-separated list of allowed origins
+- `APP_CORS_ALLOWED_ORIGINS`: Comma-separated list of allowed origins
 
 ### GCS Bucket
 - **Name**: `kalyanam_bucket`
@@ -206,7 +206,7 @@ gcloud secrets create mongodb-uri --data-file=-
 **Solution**:
 1. Verify `frontend_url` includes all domains (including protocol)
 2. Ensure no trailing slashes in URLs
-3. Check Cloud Run logs to verify APP_CORS_ALLOWED_ORIGINSINS is set correctly
+3. Check Cloud Run logs to verify APP_CORS_ALLOWED_ORIGINS is set correctly
 
 ## Cleanup
 

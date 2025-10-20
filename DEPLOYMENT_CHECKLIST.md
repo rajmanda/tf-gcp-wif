@@ -43,7 +43,7 @@ Create these secrets **before** running Terraform:
 - [ ] Image contains a Spring Boot application that:
   - [ ] Listens on port 8080
   - [ ] Exposes `/actuator/health` endpoint
-  - [ ] Reads environment variables: `SPRING_DATA_MONGODB_URI`, `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD`, `APP_CORS_ALLOWED_ORIGINSINS`, `GCS_BUCKET_NAME`
+  - [ ] Reads environment variables: `SPRING_DATA_MONGODB_URI`, `SPRING_MAIL_USERNAME`, `SPRING_MAIL_PASSWORD`, `APP_CORS_ALLOWED_ORIGINS`, `GCS_BUCKET_NAME`
 
 ### Terraform Setup
 - [ ] Terraform is installed (v1.0 or higher): `terraform --version`

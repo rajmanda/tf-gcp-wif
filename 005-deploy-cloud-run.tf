@@ -55,7 +55,7 @@ resource "google_cloud_run_v2_service" "rsvp_backend" {
       }
       env {
         # This environment variable will populate the 'app.cors.allowed-origins' property in Spring Boot
-        name  = "APP_CORS_ALLOWED_ORIGINSINS"
+        name  = "APP_CORS_ALLOWED_ORIGINS"
         value = var.frontend_url
       }
 
