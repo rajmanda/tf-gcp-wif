@@ -1,35 +1,71 @@
-# Terraform State Files
+# ================================================
+# Terraform State and Lock Files
+# ================================================
 .terraform/
 *.tfstate
 *.tfstate.*
 *.tfstate.backup
 .terraform.lock.hcl
+.terraform.tfstate
+.terraform.tfstate.backup
+.terraform.*
 
-# Crash log files
+# Terraform Providers and Modules
+.terraform/modules/*
+.terraform/providers/*
+
+# ================================================
+# Crash Logs
+# ================================================
 crash.log
 crash.*.log
 
-# Variable files that might contain sensitive information
+# ================================================
+# Sensitive and Override Files
+# ================================================
 *.tfvars.json
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
 
-# CLI configuration files
+# ================================================
+# CLI Configuration Files
+# ================================================
 .terraformrc
 terraform.rc
 
-# OS files
+# ================================================
+# Environment Files
+# ================================================
+*.env
+*.env.*
+
+# ================================================
+# Backup and History Files
+# ================================================
+*.bak
+.backup
+.history
+.history-e
+
+# ================================================
+# OS System Files
+# ================================================
 .DS_Store
 Thumbs.db
 
-# IDE files
+# ================================================
+# IDE and Editor Files
+# ================================================
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+-e
 
-# Backup files
-*.bak
+# ================================================
+# Project-Specific Files to Ignore
+# ================================================
+add-secret-values-raj.sh
