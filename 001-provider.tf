@@ -5,8 +5,9 @@ terraform {
       version = ">= 7.7.0"
     }
   }
-}
-provider "google" {
-  project = var.project_id
-  region  = var.region
+
+  backend "gcs" {
+    bucket = "tf-gcp-wif-tfstate"
+    prefix = "terraform/rsvpbackend/state/"  # Static prefix
+  }
 }
