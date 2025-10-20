@@ -1,4 +1,7 @@
-
+# resource "google_service_account" "rsvp_sa" {
+#   account_id   = "${var.service_name}-sa"
+#   display_name = "Service Account for RSVP Backend"
+# }
 
 # Grant the service account permission to access secrets
 resource "google_secret_manager_secret_iam_member" "mongo_uri_accessor" {
@@ -44,3 +47,21 @@ resource "google_storage_bucket_iam_member" "gcs_bucket_access" {
     google_storage_bucket.shravani
   ]
 }
+
+# ============================================
+# IAM Permissions - Service Account Impersonation
+# ============================================
+
+# Grant the Cloud Run SA (rsvp_sa) permission to impersonate the Signer SA
+# This allows rsvp_sa to generate signed URLs using gcs_signer_sa
+resource "google_service_account_iam_member" "signer_impersonator" {
+  service_account_id = google_service_account.gcs_signer_sa.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "serviceAccount:${google_service_account.rsvp_sa.email}"
+
+  depends_on = [
+    google_service_account.rsvp_sa,
+    google_service_account.gcs_signer_sa
+  ]
+}
+

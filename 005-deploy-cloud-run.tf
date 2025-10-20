@@ -53,6 +53,11 @@ resource "google_cloud_run_v2_service" "rsvp_backend" {
           }
         }
       }
+      # Set environment variables
+      env {
+        name  = "GCS_SIGNER_SA_EMAIL"
+        value = google_service_account.gcs_signer_sa.email
+      }
       env {
         # This environment variable will populate the 'app.cors.allowed-origins' property in Spring Boot
         name  = "APP_CORS_ALLOWED_ORIGINS"

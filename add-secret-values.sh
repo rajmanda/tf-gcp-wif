@@ -33,7 +33,7 @@ add_secret_version() {
     fi
     
     # Add secret version
-    echo -n "$secret_value" | gcloud secrets versions add "$secret_name" \
+    echo "$secret_value" | gcloud secrets versions add "$secret_name" \
         --project="$PROJECT_ID" \
         --data-file=-
     
