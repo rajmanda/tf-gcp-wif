@@ -10,7 +10,7 @@ resource "google_service_account" "gcs_signer_sa" {
   display_name = "GCS Signed URL Creator"
 }
 
-# 1. Allow the Runtime SA to read secrets
+# 1. Allow the Runtime SA to read ALL secrets in the project
 resource "google_project_iam_member" "rsvp_sa_all_secrets" {
   project = var.project_id
   role    = "roles/secretmanager.secretAccessor"
@@ -21,12 +21,10 @@ resource "google_project_iam_member" "rsvp_sa_all_secrets" {
   ]
 }
 
-# ... (add other secret accessor bindings for gmail user/pass) ...
-
-# 2. Allow the Runtime SA to access the GCS bucket (e.g., to check if a blob exists)
+# 2. Allow the Runtime SA to access the GCS bucket
 resource "google_storage_bucket_iam_member" "bucket_access_admin" {
   bucket = google_storage_bucket.shravani.name
-  role   = "roles/storage.objectAdmin" # Or a more restrictive role if it only needs to read
+  role   = "roles/storage.objectAdmin"
   member = "serviceAccount:${google_service_account.rsvp_sa.email}"
 
   depends_on = [
@@ -35,15 +33,22 @@ resource "google_storage_bucket_iam_member" "bucket_access_admin" {
   ]
 }
 
-# 3. CRITICAL: Allow the Runtime SA to impersonate the Signer SA
-resource "google_service_account_iam_member" "signer_impersonator" {
-  # The resource is the Signer SA
-  service_account_id = google_service_account.gcs_signer_sa.name
-  
-  # The role that allows signing
-  role               = "roles/iam.serviceAccountTokenCreator"
+# 3. Allow the signer SA to access the GCS bucket (for signing URLs)
+resource "google_storage_bucket_iam_member" "gcs_signer_sa_bucket_access" {
+  bucket = google_storage_bucket.shravani.name
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.gcs_signer_sa.email}"
 
-  # The member being granted permission is the Runtime SA
+  depends_on = [
+    google_storage_bucket.shravani,
+    google_service_account.gcs_signer_sa
+  ]
+}
+
+# 4. Allow rsvp_sa to impersonate the signer SA
+resource "google_service_account_iam_member" "signer_impersonator" {
+  service_account_id = google_service_account.gcs_signer_sa.name
+  role               = "roles/iam.serviceAccountTokenCreator"
   member             = "serviceAccount:${google_service_account.rsvp_sa.email}"
 
   depends_on = [
@@ -52,16 +57,14 @@ resource "google_service_account_iam_member" "signer_impersonator" {
   ]
 }
 
-# ### Service Accounts - SUMMARY 
+# 5. CRITICAL: Give the SIGNER SA ability to sign keys
+# (required to actually sign the URLs)
+resource "google_project_iam_member" "signer_keyadmin" {
+  project = var.project_id
+  role    = "roles/iam.serviceAccountKeyAdmin"
+  member  = "serviceAccount:${google_service_account.gcs_signer_sa.email}"
 
-# - rsvp_sa (Cloud Run runtime SA)
-# - gcs_signer_sa (Dedicated signing SA)
-
-# ### Secret Manager Access
-# - rsvp_sa with secretAccessor role for necessary secrets
-
-# ### GCS Bucket Access
-# - Both service accounts have appropriate storage.objectAdmin roles
-
-# ### Impersonation & Signing
-# - rsvp_sa can impersonate gcs_signer_sa to sign URLs
+  depends_on = [
+    google_service_account.gcs_signer_sa
+  ]
+}
