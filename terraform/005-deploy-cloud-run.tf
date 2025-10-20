@@ -36,7 +36,7 @@ resource "google_cloud_run_v2_service" "kalyanam_frontend" {
           path = "/"
           port = 80
         }
-        initial_delay_seconds = 10
+        initial_delay_seconds = 20
         period_seconds        = 5
         failure_threshold     = 3
       }
@@ -46,7 +46,7 @@ resource "google_cloud_run_v2_service" "kalyanam_frontend" {
           path = "/"
           port = 80
         }
-        period_seconds    = 10
+        period_seconds    = 20
         timeout_seconds   = 5
         failure_threshold = 3
       }
