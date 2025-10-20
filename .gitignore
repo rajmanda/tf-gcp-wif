@@ -22,3 +22,4 @@ terraform.tfstate.backup
 .history
 .backup
 add-secret-values-raj.sh
+.terraform/
