@@ -72,6 +72,10 @@ echo -n "your-16-char-app-password" | \
 gcloud secrets versions list mongodb-uri --project=properties-app-418208
 gcloud secrets versions list gmail-username --project=properties-app-418208
 gcloud secrets versions list gmail-password --project=properties-app-418208
+
+gcloud secrets versions access latest --secret=mongodb-uri
+gcloud secrets versions access latest --secret=gmail-username
+gcloud secrets versions access latest --secret=gmail-password
 ```
 
 You should see version 1 in "ENABLED" state for each.

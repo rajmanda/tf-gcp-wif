@@ -1,5 +1,5 @@
 project_id      = "properties-app-418208"
 region          = "us-central1"
-image_uri       = "docker.io/dockerrajmanda/rsvpbackend:122"
-gcs_bucket_name = "kalyanam_bucket"
+image_uri       = "docker.io/dockerrajmanda/rsvpbackend:128"
+gcs_bucket_name = "kalyanam_bucket_2025"
 frontend_url = "http://localhost:4200,https://staging.kalyanam.com,https://www.kalyanam.com"
