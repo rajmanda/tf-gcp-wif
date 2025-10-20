@@ -7,4 +7,4 @@ service_name = "kalyanam-frontend"
 
 # Docker Image Configuration
 # Update this to the latest image tag as needed
-image_uri = "docker.io/dockerrajmanda/kalyanam:405"
+image_uri = "docker.io/dockerrajmanda/kalyanam:406"
