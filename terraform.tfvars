@@ -8,5 +8,5 @@ http://localhost:4200,
 https://staging.kalyanam.com,
 https://www.kalyanam.com,
 https://www.rajmanda-dev.com,
-https://rsvp-backend-sa@properties-app-418208.iam.gserviceaccount.com
+https://kalyanam-frontend-175415323680.us-central1.run.app
 EOT
