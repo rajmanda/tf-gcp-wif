@@ -99,6 +99,10 @@ Type `yes` to proceed.
 
 ---
 
+### Step 5: Copy objects to actual bucket created in this project 
+gsutil -m cp -r "gs://kalyanam_bucket/*" gs://kalyanam_bucket_2025/
+
+---
 ### Step 5: Get Your Service URL
 ```bash
 terraform output service_url
