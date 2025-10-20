@@ -54,63 +54,68 @@ kalyanam-deployment.yaml
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
--e 
+-e
 # Environment files
 *.env
 *.env.*
+
+.terraform.lock.hcl
+.terraform.tfstate
+.terraform.tfstate.backup
+.terraform/
