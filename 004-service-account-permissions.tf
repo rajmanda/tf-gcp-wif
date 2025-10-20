@@ -68,3 +68,10 @@ resource "google_project_iam_member" "signer_keyadmin" {
     google_service_account.gcs_signer_sa
   ]
 }
+
+// Needed for running this locally: allow user to impersonate the GCS Signer SA
+resource "google_service_account_iam_member" "rajmanda_as_gcs_signer" {
+  service_account_id = google_service_account.gcs_signer_sa.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "user:raj.manda@gmail.com"
+}
