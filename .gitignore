@@ -19,3 +19,5 @@ terraform.tfstate.backup
 # Environment files
 *.env
 *.env.*
+.history
+.backup
