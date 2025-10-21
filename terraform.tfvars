@@ -1,6 +1,6 @@
 project_id      = "properties-app-418208"
 region          = "us-central1"
-image_uri       = "docker.io/dockerrajmanda/rsvpbackend:133"
+image_uri       = "docker.io/dockerrajmanda/rsvpbackend:134"
 gcs_bucket_name = "kalyanam_bucket_2025"
 
 frontend_url = <<EOT
